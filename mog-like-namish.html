@@ -10,13 +10,17 @@
     --tile: #E9F0EE;
     --tile-line: #D5E0DD;
     --panel: #FBFDFC;
+    --wash: #F3F8F7;
     --ink: #12302C;
     --ink-soft: #4D6A65;
     --glass: #9CC7C0;
     --amber: #E39B2F;
     --amber-deep: #B8741A;
+    --amber-wash: #FFF6E8;
     --bad: #C8453B;
+    --bad-wash: #FBE9E6;
     --good: #2F8F6B;
+    --good-wash: #E7F4EE;
     --display: "Syne", "Arial Black", system-ui, sans-serif;
     --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -36,88 +40,119 @@
     padding-inline: 16px;
     padding-block: 20px 40px;
   }
-  .wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px; }
+  .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 18px; }
 
   header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
   h1 {
-    font-family: var(--display);
-    font-weight: 800;
-    font-size: clamp(34px, 6.4vw, 64px);
-    line-height: .92;
-    letter-spacing: -0.02em;
-    margin: 0;
-    text-wrap: balance;
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(34px, 6.4vw, 64px); line-height: .92; letter-spacing: -0.02em;
+    margin: 0; text-wrap: balance;
   }
   h1 em { font-style: normal; color: var(--amber-deep); }
-  .tagline { margin: 8px 0 0; color: var(--ink-soft); max-width: 52ch; }
+  .tagline { margin: 8px 0 0; color: var(--ink-soft); max-width: 58ch; }
   .clock {
-    font-family: var(--mono);
-    background: var(--ink);
-    color: var(--panel);
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+    font-family: var(--mono); background: var(--ink); color: var(--panel);
+    padding: 10px 14px; border-radius: 6px; font-size: 14px;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
   }
   .clock b { color: var(--amber); font-weight: 500; }
 
-  .game { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 20px; align-items: start; }
-  @media (max-width: 820px) { .game { grid-template-columns: 1fr; } }
+  /* Tier ladder */
+  .ladder { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+  .rung {
+    font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    text-align: center; padding: 8px 2px; border-radius: 4px;
+    background: var(--panel); border: 1px solid var(--tile-line); color: var(--ink-soft);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rung small { display: block; font-size: 10px; opacity: .7; }
+  .rung.passed { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+  .rung.now { background: var(--amber); color: var(--ink); border-color: var(--amber-deep); font-weight: 500; }
+  .rung.goal { border: 2px dashed var(--amber-deep); color: var(--amber-deep); }
+  @media (max-width: 640px) { .ladder { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .game { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 860px) { .game { grid-template-columns: 1fr; } }
 
   .panel { background: var(--panel); border: 1px solid var(--tile-line); border-radius: 10px; padding: 16px; }
-  .mirror-col { display: grid; gap: 14px; }
+  .left-col { display: grid; gap: 14px; }
   .mirror {
-    position: relative;
-    border-radius: 50% 50% 14px 14px / 42% 42% 14px 14px;
+    position: relative; border-radius: 180px 180px 14px 14px;
     background: linear-gradient(160deg, #DDEDEA, #B9D7D1);
-    border: 6px solid var(--ink);
-    overflow: hidden;
-    aspect-ratio: 360 / 420;
-    max-width: 100%;
+    border: 6px solid var(--ink); overflow: hidden;
+    aspect-ratio: 360 / 680; max-width: 100%;
   }
   .mirror canvas { width: 100%; height: 100%; display: block; }
+  .inset-wrap { position: absolute; right: 8px; bottom: 44px; width: 28%; display: grid; gap: 3px; }
+  .inset {
+    border: 3px solid var(--ink); border-radius: 50% 50% 8px 8px / 40% 40% 8px 8px;
+    background: linear-gradient(160deg, #DDEDEA, #B9D7D1); overflow: hidden; aspect-ratio: 360 / 420;
+  }
+  .inset-lbl {
+    text-align: center;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+  }
   .mirror .tier {
     position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
     font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
     background: var(--ink); color: var(--panel); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
   }
 
-  .stats { display: grid; gap: 9px; }
-  .stat { display: grid; grid-template-columns: 92px 1fr 34px; align-items: center; gap: 10px; font-size: 13px; }
+  .score { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .score .big { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .score .big small { font-size: 16px; color: var(--ink-soft); font-weight: 600; }
+  .score .need { font-size: 12px; color: var(--ink-soft); text-align: right; max-width: 20ch; }
+  .group-title { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin: 6px 0 0; }
+  .stats { display: grid; gap: 8px; }
+  .stat { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 10px; font-size: 13px; }
   .stat .lbl { font-weight: 600; }
   .stat .lbl small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 11px; }
   .bar { height: 10px; background: var(--tile); border-radius: 999px; overflow: hidden; border: 1px solid var(--tile-line); }
   .bar i { display: block; height: 100%; border-radius: 999px; transition: width .5s ease, background-color .5s ease; }
   .stat .num { font-family: var(--mono); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
-  .goal { font-size: 12px; color: var(--ink-soft); margin: 4px 0 0; }
+  .stat.health .bar { height: 14px; }
 
   .section-title { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0 0 4px; }
   .hint { margin: 0 0 12px; color: var(--ink-soft); font-size: 13px; }
 
-  .routine { display: grid; gap: 12px; }
-  .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .slot {
-    min-height: 54px; border: 2px dashed var(--glass); border-radius: 8px;
-    display: grid; place-items: center; text-align: center; padding: 6px;
-    font-size: 12px; color: var(--ink-soft);
+  .right-col { display: grid; gap: 18px; min-width: 0; }
+  .routine { display: grid; gap: 10px; }
+  .rrow { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: start; font-size: 13px; }
+  .rrow > span:first-child { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); padding-top: 5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--ink);
+    background: var(--wash); border: 1px solid var(--ink); border-radius: 999px; padding: 4px 10px; cursor: pointer;
   }
-  .slot.filled { border-style: solid; border-color: var(--ink); color: var(--ink); background: #F3F8F7; font-weight: 600; cursor: pointer; }
-  .slot.filled:hover { border-color: var(--bad); }
+  .chip:hover { border-color: var(--bad); color: var(--bad); }
+  .chip.static { cursor: default; border-color: var(--tile-line); }
+  .chip.static:hover { color: var(--ink); }
+  .chip.empty { border-style: dashed; border-color: var(--glass); color: var(--ink-soft); font-weight: 400; cursor: default; }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .btn {
     font-family: var(--body); font-weight: 600; font-size: 15px;
     border: 0; border-radius: 8px; padding: 12px 18px; cursor: pointer;
-    background: var(--amber); color: var(--ink);
-    box-shadow: 0 3px 0 var(--amber-deep);
+    background: var(--amber); color: var(--ink); box-shadow: 0 3px 0 var(--amber-deep);
     transition: transform .08s ease, box-shadow .08s ease;
   }
   .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--amber-deep); }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
   .btn.ghost { background: transparent; box-shadow: none; border: 1px solid var(--tile-line); color: var(--ink-soft); }
-  .btn:focus-visible, .card:focus-visible, .slot:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .btn:focus-visible, .card:focus-visible, .chip:focus-visible, .tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .tab {
+    font-family: var(--body); font-weight: 600; font-size: 14px; cursor: pointer;
+    background: transparent; color: var(--ink-soft); border: 1px solid var(--tile-line);
+    border-radius: 999px; padding: 7px 14px;
+  }
+  .tab[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+  .tab .count { font-family: var(--mono); font-size: 11px; opacity: .75; margin-left: 4px; }
+
+  .subhead { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin: 14px 0 8px; }
+  .subhead:first-child { margin-top: 0; }
   .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
+  .shelf.wide { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
   .card {
     position: relative; text-align: left; cursor: pointer;
     font-family: var(--body); color: var(--ink);
@@ -126,32 +161,35 @@
     transition: border-color .15s ease, transform .15s ease;
   }
   .card:hover { border-color: var(--ink); transform: translateY(-1px); }
-  .card.picked { border-color: var(--amber-deep); background: #FFF6E8; box-shadow: inset 0 0 0 1px var(--amber-deep); }
-  .card .dose { font-family: var(--mono); font-size: 11px; color: var(--amber-deep); }
+  .card.picked { border-color: var(--amber-deep); background: var(--amber-wash); box-shadow: inset 0 0 0 1px var(--amber-deep); }
+  .card .dose { font-family: var(--mono); font-size: 11px; color: var(--amber-deep); padding-right: 58px; }
   .card .name { font-weight: 600; font-size: 14px; line-height: 1.2; }
   .card .blurb { font-size: 12px; color: var(--ink-soft); line-height: 1.35; }
-  .card .bottle { width: 22px; height: 30px; border-radius: 4px 4px 6px 6px; margin-bottom: 4px; border: 2px solid var(--ink); position: relative; }
+  .card .sched { font-family: var(--mono); font-size: 11px; line-height: 1.5; color: var(--ink); background: var(--wash); border-radius: 4px; padding: 6px 8px; margin-top: 4px; }
+  .card .risk { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--bad); }
+  .card .bottle { width: 22px; height: 30px; border-radius: 4px 4px 6px 6px; margin: 6px 0 4px; border: 2px solid var(--ink); position: relative; }
   .card .bottle::before { content: ""; position: absolute; left: 5px; right: 5px; top: -7px; height: 6px; background: var(--ink); border-radius: 2px 2px 0 0; }
+  .card .bottle.vial { width: 14px; height: 26px; border-radius: 3px; }
+  .card .bottle.vial::before { left: 1px; right: 1px; top: -6px; height: 5px; background: var(--bad); }
   .card .stamp {
     position: absolute; top: 10px; right: 8px; transform: rotate(8deg);
-    font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em;
+    font-family: var(--display); font-weight: 800; font-size: 12px; letter-spacing: .08em;
     color: var(--bad); border: 2px solid var(--bad); padding: 1px 6px; border-radius: 4px; background: var(--panel);
   }
   .card .stamp.legit { color: var(--good); border-color: var(--good); }
+  .card .stamp.risky { color: var(--amber-deep); border-color: var(--amber-deep); }
 
-  .log { display: grid; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 4px; }
-  .entry { font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 6px; background: #F3F8F7; }
+  .log { display: grid; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+  .entry { font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 6px; background: var(--wash); }
   .entry b { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--ink-soft); display: block; margin-bottom: 2px; }
-  .entry.bad { background: #FBE9E6; }
-  .entry.good { background: #E7F4EE; }
+  .entry.bad { background: var(--bad-wash); }
+  .entry.good { background: var(--good-wash); }
+  .entry.up { background: var(--amber-wash); border: 1px solid var(--amber); }
   .entry p { margin: 2px 0; }
 
-  .overlay {
-    position: fixed; inset: 0; background: rgba(18, 48, 44, .72);
-    display: grid; place-items: center; padding: 16px; z-index: 10;
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(18, 48, 44, .72); display: grid; place-items: center; padding: 16px; z-index: 10; }
   .modal {
-    background: var(--panel); border-radius: 12px; max-width: 560px; width: 100%;
+    background: var(--panel); border-radius: 12px; max-width: 580px; width: 100%;
     padding: 26px 24px; display: grid; gap: 14px; max-height: 90vh; overflow-y: auto;
     border-top: 8px solid var(--amber);
   }
@@ -162,55 +200,65 @@
   .flash { animation: flash .6s ease; }
   @keyframes flash { 0%,100% { box-shadow: none; } 40% { box-shadow: 0 0 0 6px var(--bad); } }
   @media (prefers-reduced-motion: reduce) { .flash { animation: none; } .bar i, .card { transition: none; } }
-  footer { font-size: 12px; color: var(--ink-soft); max-width: 70ch; }
+  footer { font-size: 12px; color: var(--ink-soft); max-width: 80ch; }
 </style>
 
 <div class="wrap">
   <header>
     <div>
       <h1>How to Mog<br>Like <em>Namish</em></h1>
-      <p class="tagline">Your guy has a face full of breakouts and 20 weeks to become model-tier. Build a skincare routine and don't fall for the cope.</p>
+      <p class="tagline">Your guy starts at sub-3: breakouts, soft body, zero confidence. Build his skincare, gym split, diet and stack, and climb all the way to True Adam in 40 weeks. Don't fall for the cope, and don't let the gear kill him.</p>
     </div>
-    <div class="clock" id="clock">WEEK <b>1</b> / 20</div>
+    <div class="clock" id="clock">WEEK <b>1</b> / 40</div>
   </header>
 
+  <div class="ladder" id="ladder" aria-label="Tier ladder"></div>
+
   <div class="game">
-    <div class="mirror-col">
+    <div class="left-col">
       <div class="mirror" id="mirror">
-        <canvas id="face" width="720" height="840" aria-label="Your character's face in the mirror"></canvas>
-        <div class="tier" id="tier">Tier: Hood-up</div>
+        <canvas id="body" width="720" height="1360" aria-label="Your character's full body in the mirror"></canvas>
+        <div class="inset-wrap">
+          <div class="inset-lbl">Close-up</div>
+          <div class="inset"><canvas id="face" width="720" height="840" aria-label="Close-up of your character's face"></canvas></div>
+        </div>
+        <div class="tier" id="tier">Sub-3</div>
       </div>
-      <div class="panel stats" id="stats"></div>
-      <p class="goal">To win: acne ≤ 12 · scars ≤ 15 · barrier ≥ 60 · glow ≥ 70 · irritation ≤ 30</p>
+      <div class="panel stats">
+        <div class="score">
+          <div class="big" id="score">0<small> / 100 looks</small></div>
+          <div class="need">True Adam needs 89+ looks with health 60+</div>
+        </div>
+        <div id="stats" class="stats"></div>
+      </div>
     </div>
 
-    <div style="display:grid; gap:20px; min-width:0;">
+    <div class="right-col">
       <div class="panel routine">
         <div>
-          <h2 class="section-title">This week's routine</h2>
-          <p class="hint">Pick up to 3 products from the shelf, then end the week. Tap a filled slot to remove it.</p>
+          <h2 class="section-title">Current routine</h2>
+          <p class="hint">Your routine carries over every week until you change it. Tap a chip to drop it.</p>
         </div>
-        <div class="slots" id="slots"></div>
+        <div id="routine" class="routine"></div>
         <div class="actions">
-          <button class="btn" id="endWeek" type="button">Apply &amp; end week</button>
+          <button class="btn" id="endWeek" type="button">Run it for a week</button>
           <button class="btn ghost" id="restart" type="button">Restart</button>
         </div>
       </div>
 
       <div class="panel">
-        <h2 class="section-title">Bathroom shelf</h2>
-        <p class="hint">Some of these are real. Some are cope. You'll find out which the hard way.</p>
-        <div class="shelf" id="shelf"></div>
+        <div class="tabs" role="tablist" id="tabs"></div>
+        <div id="tabBody"></div>
       </div>
 
       <div class="panel">
-        <h2 class="section-title">Skin diary</h2>
+        <h2 class="section-title">Glow-up diary</h2>
         <div class="log" id="log" aria-live="polite"></div>
       </div>
     </div>
   </div>
 
-  <footer>This is a game, not medical advice. Tretinoin is a prescription drug in most places — talk to a dermatologist before starting it.</footer>
+  <footer>This is a game, not medical or fitness advice. Tretinoin, isotretinoin and clindamycin need a prescription. Anabolic steroids, HGH, IGF-1 and research peptides carry real risks, including heart, liver and hormone damage. In real life, talk to a doctor.</footer>
 </div>
 
 <div class="overlay" id="overlay" hidden>
@@ -219,145 +267,338 @@
 
 <script>
 (() => {
-  const MAX_WEEKS = 20;
-  const SLOTS = 3;
+  const MAX_WEEKS = 40;
+  const SKIN_SLOTS = 4;
+  const STACK_SLOTS = 3;
 
-  // ---------- Products ----------
-  // fx(s, ctx) mutates stats and returns a diary line.
-  const PRODUCTS = [
+  const TIERS = [
+    { name: "Sub-3", min: 0 }, { name: "Sub-5", min: 33 }, { name: "LTN", min: 42 }, { name: "MTN", min: 54 },
+    { name: "HTN", min: 64 }, { name: "Chadlite", min: 73 }, { name: "Chad", min: 81 }, { name: "True Adam", min: 89 },
+  ];
+
+  // ---------- Skincare (fx mutates stats, returns a diary line) ----------
+  const SKIN = [
     { id: "tret", name: "Tretinoin", dose: "0.025% cream · Rx", blurb: "Retinoid GOAT. Expect a purge first.", color: "#F4E7B8",
       fx(s, c) {
         s.tretUses++;
-        if (s.barrier < 30) { s.irritation += 20; return "Tretinoin on a wrecked barrier: burning, peeling, zero benefit. Fix your barrier first."; }
+        if (s.barrier < 30) { s.irritation += 20; return "Tretinoin on a wrecked barrier: burning, peeling, zero benefit."; }
         const k = c.has("bp") ? 0.5 : 1;
         s.acne -= 10 * k; s.scars -= 6 * k; s.glow += 4 * k;
         s.barrier -= c.has("moist") ? 5 : 10;
         s.irritation += c.has("moist") ? 8 : 16;
-        let msg = "Tretinoin sped up cell turnover.";
-        if (s.tretUses <= 2) { s.acne += 7; msg += " The purge hit — it gets worse before it gets better."; }
-        if (k < 1) msg += " Benzoyl peroxide oxidized half of it — don't stack them.";
-        if (c.has("moist")) msg += " Buffering with moisturizer kept irritation down.";
-        return msg;
+        let m = "Tretinoin sped up cell turnover.";
+        if (s.tretUses <= 2) { s.acne += 7; m += " The purge hit — worse before better."; }
+        if (k < 1) m += " Benzoyl peroxide oxidized half of it.";
+        return m;
       } },
     { id: "lemon", cope: true, name: "Fresh Lemon Toner", dose: "100% natural", blurb: "Nature's brightener. Straight from the fruit.", color: "#FFF08A",
-      fx(s) { s.scars += 10; s.barrier -= 15; s.irritation += 15; return "Lemon juice is pH 2 and phototoxic. You got burns and darker marks. COPE."; } },
+      fx(s) { s.scars += 10; s.barrier -= 15; s.irritation += 15; return "Lemon juice is pH 2 and phototoxic. Burns and darker marks."; } },
     { id: "bp", name: "Benzoyl Peroxide", dose: "2.5% wash", blurb: "Kills acne bacteria on contact.", color: "#E3F1F7",
-      fx(s) { s.acne -= 12; s.oil -= 5; s.barrier -= 6; s.irritation += 6; return "Benzoyl peroxide wiped out a wave of breakouts. (It also bleaches pillowcases.)"; } },
+      fx(s) { s.acne -= 12; s.oil -= 5; s.barrier -= 6; s.irritation += 6; return "Benzoyl peroxide wiped out a wave of breakouts."; } },
     { id: "niac", name: "Niacinamide", dose: "10% serum", blurb: "Oil control + barrier support.", color: "#E7E1F5",
-      fx(s) { s.oil -= 8; s.barrier += 6; s.acne -= 4; s.scars -= 2; return "Niacinamide calmed the oil slick and strengthened the barrier."; } },
+      fx(s) { s.oil -= 8; s.barrier += 6; s.acne -= 4; s.scars -= 2; return "Niacinamide calmed the oil and backed up the barrier."; } },
     { id: "paste", cope: true, name: "Minty Spot Fix", dose: "whitening formula", blurb: "Dab on overnight. Tingles = working!", color: "#D8F3F7",
-      fx(s) { s.acne += 8; s.barrier -= 12; s.irritation += 15; return "That was toothpaste. The tingle was chemical irritation. Breakouts got angrier. COPE."; } },
+      fx(s) { s.acne += 8; s.barrier -= 12; s.irritation += 15; return "That was toothpaste. The tingle was chemical irritation."; } },
+    { id: "adapalene", name: "Adapalene", dose: "0.1% gel", blurb: "OTC retinoid. Gentler than tret.", color: "#EFE9D2",
+      fx(s, c) {
+        s.acne -= 7; s.scars -= 3; s.barrier -= 5; s.irritation += 8;
+        if (c.has("tret") || c.has("retinal")) { s.irritation += 10; return "Adapalene worked, but stacking two retinoids set your face on fire."; }
+        return "Adapalene cleared clogged pores.";
+      } },
     { id: "bha", name: "Salicylic Acid", dose: "2% BHA", blurb: "Oil-soluble. Unclogs pores.", color: "#F7E3E0",
-      fx(s) { s.acne -= 7; s.oil -= 10; s.scars -= 3; s.barrier -= 4; s.irritation += 5; return "BHA dug into pores and cleared out blackheads."; } },
-    { id: "cu", name: "Copper Peptides", dose: "GHK-Cu 1%", blurb: "Repair, remodel, collagen.", color: "#BFE1F2",
-      fx(s) { s.scars -= 8; s.barrier += 8; s.glow += 6; s.irritation -= 5; return "Copper peptides kicked off repair — texture smoothed out."; } },
+      fx(s) { s.acne -= 7; s.oil -= 10; s.scars -= 3; s.barrier -= 4; s.irritation += 5; return "BHA dug into pores and cleared blackheads."; } },
+    { id: "sanitizer", cope: true, name: "Hand Sanitizer Wipe", dose: "70% ethanol", blurb: "Kills 99.9% of germs. On your face too.", color: "#DDF0FA",
+      fx(s) { s.barrier -= 14; s.irritation += 12; s.acne += 4; return "Hand sanitizer stripped every lipid off your face. COPE."; } },
+    { id: "cu", name: "Copper Peptides", dose: "GHK-Cu 1% serum", blurb: "Repair, remodel, collagen.", color: "#BFE1F2",
+      fx(s) { s.scars -= 8; s.barrier += 8; s.glow += 6; s.irritation -= 5; return "Copper peptides kicked off repair — texture smoothed."; } },
+    { id: "clinda", name: "Clindamycin", dose: "1% lotion · Rx", blurb: "Topical antibiotic for inflamed acne.", color: "#E9F3E4",
+      fx(s, c) {
+        s.clindaUses++;
+        if (s.clindaUses > 6 && !c.has("bp")) { s.acne -= 2; return "Clindamycin barely did anything — bacteria built resistance. Pair it with benzoyl peroxide."; }
+        s.acne -= 8; return "Clindamycin knocked down the angry red ones.";
+      } },
     { id: "scrub", cope: true, name: "Walnut Glow Scrub", dose: "exfoliating grit", blurb: "Buff breakouts away. Feel the scrub!", color: "#E8CFB3",
-      fx(s) { s.barrier -= 18; s.acne += 10; s.irritation += 15; return "Crushed walnut shells made micro-tears and spread bacteria around. COPE."; } },
+      fx(s) { s.barrier -= 18; s.acne += 10; s.irritation += 15; return "Walnut shells made micro-tears and spread bacteria. COPE."; } },
     { id: "moist", name: "Ceramide Moisturizer", dose: "ceramides 1·3·6-II", blurb: "Rebuilds the skin barrier.", color: "#FFFFFF",
-      fx(s) { s.barrier += 14; s.irritation -= 12; return "Ceramides patched up the barrier."; } },
+      fx(s) { s.barrier += 14; s.irritation -= 12; return "Ceramides patched the barrier."; } },
+    { id: "vitc", name: "Vitamin C", dose: "15% L-ascorbic acid", blurb: "Antioxidant. Brightens marks.", color: "#FFD9A8",
+      fx(s) { s.glow += 4; s.scars -= 3; s.irritation += 3; return "Vitamin C brightened your whole face."; } },
     { id: "coco", cope: true, name: "Virgin Coconut Oil", dose: "cold-pressed", blurb: "The only moisturizer you'll ever need.", color: "#FBF6EA",
       fx(s) { s.acne += 12; s.oil += 10; return "Coconut oil is highly comedogenic. Every pore clogged. COPE."; } },
     { id: "spf", name: "Sunscreen", dose: "SPF 50 · PA++++", blurb: "Non-negotiable with actives.", color: "#FFE9C9",
-      fx(s) { s.glow += 2; s.scars -= 1; return "SPF 50 locked in. Your actives can actually do their job."; } },
+      fx(s) { s.glow += 2; s.scars -= 1; return "SPF 50 locked in."; } },
+    { id: "centella", name: "Centella Cream", dose: "cica · madecassoside", blurb: "Soothes redness and irritation.", color: "#DDEFD8",
+      fx(s) { s.irritation -= 8; s.barrier += 6; s.acne -= 1; return "Centella calmed the redness down."; } },
     { id: "pop", cope: true, name: "Pop Every Pimple", dose: "bare hands", blurb: "Instant results. So satisfying.", color: "#F2D0D0",
-      fx(s) { s.acne += 6; s.scars += 14; s.irritation += 8; return "Popping pushed bacteria deeper and left scars behind. COPE."; } },
+      fx(s) { s.acne += 6; s.scars += 14; s.irritation += 8; return "Popping pushed bacteria deeper and left scars. COPE."; } },
     { id: "matrixyl", name: "Matrixyl Peptides", dose: "pal-pentapeptide-4", blurb: "Firmness and bounce.", color: "#E0EDD6",
       fx(s) { s.glow += 5; s.scars -= 4; s.barrier += 4; return "Signal peptides boosted firmness and glow."; } },
+    { id: "snail", name: "Snail Mucin", dose: "96% filtrate", blurb: "Hydration and bounce. K-beauty staple.", color: "#F1EDE4",
+      fx(s) { s.barrier += 5; s.glow += 3; return "Snail mucin plumped everything up."; } },
+    { id: "alcohol", cope: true, name: "Rubbing Alcohol Toner", dose: "isopropyl 91%", blurb: "Dries pimples out overnight.", color: "#EAF1FF",
+      fx(s) { s.barrier -= 12; s.oil += 8; s.acne += 4; return "Alcohol dried your skin so hard it pumped out even more oil. COPE."; } },
+    { id: "glycolic", name: "Glycolic Acid", dose: "7% AHA toner", blurb: "Resurfaces texture and dullness.", color: "#F9EBD9",
+      fx(s) { s.scars -= 4; s.glow += 3; s.barrier -= 5; s.irritation += 6; return "Glycolic acid resurfaced rough texture."; } },
     { id: "mew", cope: true, name: "Jawline Mewing Cream", dose: "“clinically mogging”", blurb: "Snatched jaw in 7 days, guaranteed.", color: "#D9D2F0",
-      fx(s) { s.acne += 6; s.glow -= 5; s.oil += 6; return "Fragrance-heavy goo with zero actives. Your jaw didn't move; your pores clogged. COPE."; } },
+      fx(s) { s.acne += 6; s.glow -= 5; s.oil += 6; return "Fragrance goo with zero actives. Jaw unchanged, pores clogged. COPE."; } },
+    { id: "patch", name: "Pimple Patches", dose: "hydrocolloid", blurb: "Flattens zits, stops you picking.", color: "#FCEFD6",
+      fx(s) { s.acne -= 4; s.scars -= 1; return "Hydrocolloid patches pulled the gunk out."; } },
     { id: "aze", name: "Azelaic Acid", dose: "15% gel", blurb: "Fades red and brown marks.", color: "#F5E6F0",
-      fx(s) { s.acne -= 6; s.scars -= 5; s.barrier -= 2; s.irritation += 3; return "Azelaic acid faded post-acne marks and calmed redness."; } },
+      fx(s) { s.acne -= 6; s.scars -= 5; s.barrier -= 2; s.irritation += 3; return "Azelaic acid faded post-acne marks."; } },
+    { id: "bakingsoda", cope: true, name: "Baking Soda Paste", dose: "pH 9 DIY", blurb: "Grandma's secret exfoliant.", color: "#FAFAFA",
+      fx(s) { s.barrier -= 15; s.irritation += 10; return "Your skin sits around pH 5. Baking soda is pH 9. Barrier destroyed. COPE."; } },
+    { id: "squalane", name: "Squalane Oil", dose: "100% plant squalane", blurb: "Lightweight, non-clogging oil.", color: "#FFF8E6",
+      fx(s) { s.barrier += 6; s.glow += 2; return "Squalane sealed in moisture without clogging."; } },
+    { id: "retinal", name: "Retinal", dose: "0.1% serum", blurb: "Fast-acting retinoid, less sting.", color: "#F8E3B2",
+      fx(s, c) {
+        s.acne -= 5; s.scars -= 4; s.glow += 3; s.irritation += 6; s.barrier -= 4;
+        if (c.has("tret")) { s.irritation += 10; return "Retinal on top of tretinoin: double retinoid, double burn."; }
+        return "Retinal smoothed things out.";
+      } },
     { id: "filter", cope: true, name: "Beauty Filter Pro", dose: "app · 4.9★", blurb: "Flawless skin instantly.*", color: "#E4F0FF",
-      fx(s) { s.acne += 5; s.glow -= 4; return "The filter looked great. You skipped your routine to take selfies. Real skin got worse. COPE."; } },
+      fx(s) { s.acne += 5; s.glow -= 4; return "You skipped your routine to take filtered selfies. COPE."; } },
+    { id: "txa", name: "Tranexamic Acid", dose: "5% serum", blurb: "Targets stubborn dark spots.", color: "#EDE3F3",
+      fx(s) { s.scars -= 5; return "Tranexamic acid faded the brown marks."; } },
+    { id: "sulfur", name: "Sulfur Mask", dose: "10% sulfur", blurb: "Smells like eggs. Works anyway.", color: "#F6F0C7",
+      fx(s) { s.acne -= 6; s.oil -= 8; s.barrier -= 3; return "Sulfur mask dried up active spots (and smelled terrible)."; } },
+    { id: "tanbed", cope: true, name: "Tanning Bed", dose: "20 min · no SPF", blurb: "Base tan hides acne!", color: "#F5C28A",
+      fx(s) { s.tan += 0.15; s.glow += 2; s.scars += 8; s.health -= 3; return "UV darkened every mark and aged your skin. Real cancer risk. COPE."; } },
+    { id: "accutane", name: "Isotretinoin", dose: "Accutane · Rx", blurb: "The acne nuke. Needs bloodwork.", color: "#F3D2B0",
+      fx(s, c) {
+        s.acne -= 18; s.oil -= 20; s.barrier -= 8; s.irritation += 10; s.health -= 1;
+        let m = "Isotretinoin shrank your oil glands. Lips cracked, acne crushed.";
+        if (c.has("tret") || c.has("adapalene") || c.has("retinal")) { s.irritation += 15; m += " Stacking a topical retinoid on it was brutal."; }
+        return m;
+      } },
+    { id: "garlic", cope: true, name: "Raw Garlic Spot Rub", dose: "antibacterial!!", blurb: "TikTok says it kills acne overnight.", color: "#F8F4EA",
+      fx(s) { s.irritation += 18; s.scars += 6; return "Raw garlic gave you chemical burns. COPE."; } },
+    { id: "roller", name: "Dermaroller", dose: "0.5 mm needles", blurb: "Microneedling for acne scars.", color: "#D7E5EE",
+      fx(s, c) {
+        s.scars -= 7; s.irritation += 12; s.barrier -= 8;
+        let m = "Microneedling triggered collagen repair in the scars.";
+        if (c.has("cu")) { s.scars -= 3; m += " Copper peptides boosted it."; }
+        if (s.acne > 40) { s.acne += 6; m += " Rolling over active breakouts spread them."; }
+        if (c.has("accutane")) { s.scars += 5; m += " Needling on Accutane heals badly."; }
+        return m;
+      } },
+    { id: "cinnamon", cope: true, name: "Cinnamon Honey Mask", dose: "DIY kitchen", blurb: "Natural antibacterial glow.", color: "#E7C29B",
+      fx(s) { s.irritation += 15; s.acne += 3; return "Cinnamon is a skin irritant. Face went bright red. COPE."; } },
     { id: "clean", name: "Gentle Cleanser", dose: "pH 5.5", blurb: "Low-foam, non-stripping.", color: "#EAF4F2",
-      fx(s) { s.oil -= 4; s.acne -= 3; s.barrier += 3; return "Gentle cleanser cleared the day's grime without stripping."; } },
-  ];
-  const byId = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
-
-  const STATS = [
-    { k: "acne", lbl: "Acne", sub: "lower is better", bad: true },
-    { k: "scars", lbl: "Scars & marks", sub: "lower is better", bad: true },
-    { k: "oil", lbl: "Oiliness", sub: "lower is better", bad: true },
-    { k: "irritation", lbl: "Irritation", sub: "lower is better", bad: true },
-    { k: "barrier", lbl: "Barrier", sub: "higher is better", bad: false },
-    { k: "glow", lbl: "Glow", sub: "higher is better", bad: false },
+      fx(s) { s.oil -= 4; s.acne -= 3; s.barrier += 3; return "Gentle cleanser cleared grime without stripping."; } },
+    { id: "barsoap", cope: true, name: "Shower Bar Soap", dose: "3-in-1 body bar", blurb: "Face, body, hair. Why buy more?", color: "#CFE3F0",
+      fx(s) { s.barrier -= 8; s.acne += 3; s.oil += 5; return "Alkaline bar soap wrecked your barrier. COPE."; } },
   ];
 
-  let s, picked, tried, over;
+  // ---------- Gym splits ----------
+  const SPLITS = [
+    { id: "none", name: "No gym", dose: "rest", blurb: "Couch arc.", sched: "Rest · Rest · Rest · Rest · Rest · Rest · Rest", stim: 0, bf: 0.2, health: 0 },
+    { id: "ppl", name: "Push / Pull / Legs", dose: "6 days", blurb: "High volume, hits everything twice.", sched: "Push · Pull · Legs · Push · Pull · Legs · Rest", stim: 4.5, bf: -0.15, health: 0.5 },
+    { id: "ul", name: "Upper / Lower", dose: "4 days", blurb: "Balanced, easy to recover from.", sched: "Upper · Lower · Rest · Upper · Lower · Rest · Rest", stim: 4.0, bf: -0.1, health: 1 },
+    { id: "arms", cope: true, name: "Arms Every Day", dose: "7 days", blurb: "Biceps are all that matter.", sched: "Curls · Curls · Curls · Curls · Curls · Curls · Curls", stim: 1.0, bf: 0, health: -1,
+      fx(s) { return "Curls every day and nothing else. No recovery, no chest, no legs. COPE."; } },
+    { id: "arnold", name: "Arnold Split", dose: "6 days", blurb: "Golden-era classic.", sched: "Chest+Back · Shoulders+Arms · Legs · Chest+Back · Shoulders+Arms · Legs · Rest", stim: 4.3, bf: -0.15, health: 0.5 },
+    { id: "fb", name: "Full Body", dose: "3 days", blurb: "Beginner-proof. Big compounds.", sched: "Full · Rest · Full · Rest · Full · Rest · Rest", stim: 3.4, bf: -0.05, health: 1 },
+    { id: "ego", cope: true, name: "Ego Lifting", dose: "max every set", blurb: "No warm-up. Bad form. Big numbers.", sched: "1RM · 1RM · 1RM · Injured · Injured · Injured · Injured", stim: 1.0, bf: 0, health: -5,
+      fx(s) { s.muscle -= 1; return "You tweaked your lower back going for a 1RM with no warm-up. COPE."; } },
+    { id: "bro", name: "Bro Split", dose: "5 days", blurb: "One muscle a day. Massive pumps.", sched: "Chest · Back · Shoulders · Arms · Legs · Rest · Rest", stim: 3.8, bf: -0.1, health: 0.5 },
+    { id: "crunch", cope: true, name: "1,000 Crunches", dose: "daily", blurb: "Burn belly fat fast.", sched: "Crunches · Crunches · Crunches · Crunches · Crunches · Crunches · Crunches", stim: 0.3, bf: 0, health: 0,
+      fx(s) { return "Spot reduction isn't real. 1,000 crunches burned basically nothing. COPE."; } },
+  ];
+
+  // ---------- Diets ----------
+  const DIETS = [
+    { id: "fridge", name: "Whatever's in the fridge", dose: "no plan", blurb: "Cereal, leftovers, vibes.", meals: "Cereal · Leftover pasta · Chips · Frozen pizza", macro: "~2,600 kcal · 70 g protein", m: 0.4, bf: 0.2, health: 0 },
+    { id: "lean", name: "Lean Bulk", dose: "+300 kcal", blurb: "Slow, clean muscle gain.", meals: "Oats, whey & banana · Chicken, rice & broccoli · Greek yogurt & berries · Salmon, potatoes & salad", macro: "2,900 kcal · 190 g protein", m: 1.0, bf: 0.25, health: 1, glow: 1 },
+    { id: "dirty", cope: true, name: "Dirty Bulk", dose: "+2,500 kcal", blurb: "See food, eat food. GOMAD.", meals: "Pizza · Double cheeseburger meal · 2 L soda · Tub of ice cream", macro: "5,200 kcal · 110 g protein", m: 1.05, bf: 1.0, health: -2, acne: 3, oil: 2,
+      msg: "You gained muscle — buried under a lot of fat. Sugar and dairy flared your skin. COPE." },
+    { id: "cut", name: "Cut", dose: "−500 kcal", blurb: "Lose fat, keep muscle.", meals: "Egg whites & toast · Turkey wrap · Big chicken salad · Cod, veg & cottage cheese", macro: "2,000 kcal · 190 g protein", m: 0.35, bf: -1.1, health: 0.5 },
+    { id: "crash", cope: true, name: "Crash Diet", dose: "800 kcal", blurb: "Shred 10 lbs in a week!", meals: "Black coffee · Half an apple · Nothing · Diet soda", macro: "800 kcal · 20 g protein", m: 0, flat: -1.5, bf: -1.3, health: -4, glow: -3, barrier: -3,
+      msg: "You lost weight — a lot of it muscle. Looked flat, grey and exhausted. COPE." },
+    { id: "recomp", name: "Recomp", dose: "maintenance", blurb: "Build muscle and lose fat slowly.", meals: "Eggs & oats · Beef rice bowl · Protein shake · Chicken stir-fry", macro: "2,500 kcal · 180 g protein", m: 0.6, bf: -0.5, health: 1, glow: 1 },
+    { id: "raw", cope: true, name: "Raw Organ Meat Only", dose: "ancestral", blurb: "Eat like a caveman. Raw.", meals: "Raw liver · Raw eggs · Raw milk · More raw liver", macro: "2,400 kcal · 150 g protein", m: 0.7, bf: 0, health: -4,
+      msg: "Food poisoning twice in one week. Raw doesn't mean better. COPE." },
+    { id: "skip", cope: true, name: "Energy Drinks & Skipped Meals", dose: "“intermittent fasting”", blurb: "Grindset. Food is for the weak.", meals: "Energy drink · Energy drink · Gas-station hot dog · Energy drink", macro: "1,400 kcal · 40 g protein", m: 0.2, bf: -0.3, health: -3, acne: 2, glow: -2,
+      msg: "No food, all caffeine. Terrible sleep, no recovery, breakouts. COPE." },
+  ];
+
+  // ---------- Supplements, peptides & gear ----------
+  // kind: legit | cope | risky.  sub: supp | peptide | gear
+  const STACK = [
+    { id: "creatine", sub: "supp", name: "Creatine", dose: "5 g/day monohydrate", blurb: "Most-studied supplement ever.", color: "#FFFFFF",
+      fx(s, c) { c.mult += 0.12; return "Creatine kept your lifts climbing."; } },
+    { id: "whey", sub: "supp", name: "Whey Protein", dose: "25 g scoop", blurb: "Hit your protein target easily.", color: "#F2E6D6",
+      fx(s, c) { c.mult += 0.08; return "Whey topped up your protein."; } },
+    { id: "tbooster", cope: true, sub: "supp", name: "Alpha T-Booster Pills", dose: "“+400% testosterone”", blurb: "Unlock your inner alpha.", color: "#F4C542",
+      fx(s) { s.acne += 1; return "T-booster pills were zinc and marketing. Nothing changed. COPE."; } },
+    { id: "fishd", sub: "supp", name: "Vitamin D + Fish Oil", dose: "2,000 IU · 2 g omega-3", blurb: "Boring basics that work.", color: "#FFE9A6",
+      fx(s) { s.health += 1; s.glow += 1; return "Vitamin D and fish oil kept your bloodwork clean."; } },
+    { id: "sleep", sub: "supp", name: "Sleep 8h + Magnesium", dose: "400 mg glycinate", blurb: "The free anabolic.", color: "#D9E2F7",
+      fx(s, c) { s.health += 1; c.mult += 0.06; s.irritation -= 2; return "Eight hours of sleep: better recovery, better skin."; } },
+    { id: "collagen", sub: "supp", name: "Collagen Peptides", dose: "10 g oral", blurb: "Skin, hair and joints.", color: "#F7E1DA",
+      fx(s) { s.glow += 1; s.barrier += 1; return "Collagen peptides — small but real skin boost."; } },
+    { id: "burner", cope: true, sub: "supp", name: "Fat Burner Gummies", dose: "“thermogenic”", blurb: "Melt fat while you sleep.", color: "#F9A8C0",
+      fx(s) { s.health -= 2; return "Fat burner gummies were caffeine and sugar. Heart racing, zero fat lost. COPE."; } },
+    { id: "gainer", cope: true, sub: "supp", name: "Mass Gainer 1250", dose: "1,250 kcal/shake", blurb: "Mass. Monster. Gains.", color: "#C9A27A",
+      fx(s) { s.bf += 0.6; s.acne += 2; return "Mass gainer was mostly sugar. You got fatter, not bigger. COPE."; } },
+
+    { id: "bpc", sub: "peptide", kind: "risky", risk: "Low · unapproved", name: "BPC-157", dose: "research peptide", blurb: "“Wolverine” healing peptide.", color: "#E6F4F1",
+      fx(s, c) { c.mult += 0.05; s.irritation -= 3; return "BPC-157: joints felt good. Unregulated vial, unknown purity."; } },
+    { id: "tb500", sub: "peptide", kind: "risky", risk: "Low · unapproved", name: "TB-500", dose: "thymosin β4 fragment", blurb: "Recovery and tissue repair.", color: "#E1EEF8",
+      fx(s, c) { c.mult += 0.04; s.health -= 1; return "TB-500 helped recovery a little."; } },
+    { id: "ipa", sub: "peptide", kind: "risky", risk: "Medium", name: "Ipamorelin + CJC-1295", dose: "GH secretagogue", blurb: "Boosts your natural GH pulses.", color: "#EDE6FA",
+      fx(s, c) { c.flat += 0.6; s.bf -= 0.2; s.glow += 1; s.health -= 1; return "Ipamorelin/CJC bumped your GH. Better sleep, slight recomp."; } },
+    { id: "mk677", sub: "peptide", kind: "risky", risk: "Medium", name: "MK-677", dose: "ibutamoren", blurb: "Oral GH booster. Insane hunger.", color: "#FCE7C8",
+      fx(s, c) { c.flat += 0.7; s.bloat += 3; s.bf += 0.1; s.health -= 2; return "MK-677: starving all day and holding water. Blood sugar creeping up."; } },
+    { id: "hgh", sub: "peptide", kind: "risky", risk: "High", name: "HGH", dose: "growth hormone", blurb: "Pro-level recomp and skin.", color: "#DDF1E7",
+      fx(s, c) { c.flat += 1.5; s.bf -= 0.4; s.glow += 2; s.scars -= 1; s.bloat += 2; s.health -= 4; return "HGH leaned you out and made your skin look great. Joints ache, hands go numb."; } },
+    { id: "igf", sub: "peptide", kind: "risky", risk: "High", name: "IGF-1 LR3", dose: "long-acting IGF-1", blurb: "Hyperplasia. Full muscles.", color: "#F9DADA",
+      fx(s, c) { c.flat += 1.8; s.bf -= 0.2; s.health -= 5; return "IGF-1 filled out your muscles. You nearly passed out from low blood sugar."; } },
+    { id: "mt2", sub: "peptide", kind: "risky", risk: "Medium", name: "Melanotan II", dose: "tanning peptide", blurb: "Instant golden tan.", color: "#E9C9A6",
+      fx(s) { s.tan += 0.12; s.glow += 4; s.health -= 3; return "Melanotan II tanned you — plus nausea and a few new moles."; } },
+    { id: "cuinj", sub: "peptide", kind: "risky", risk: "Low · unapproved", name: "GHK-Cu Injectable", dose: "copper peptide", blurb: "Skin and hair from the inside.", color: "#C5E3F4",
+      fx(s) { s.scars -= 3; s.glow += 2; s.health -= 1; return "Injectable GHK-Cu helped skin repair. Stung like crazy."; } },
+
+    { id: "test", sub: "gear", kind: "risky", gear: true, risk: "High", name: "Testosterone Cycle", dose: "anabolic steroid", blurb: "The base of every cycle.", color: "#F2D7A8",
+      fx(s, c) { c.flat += 3.5; s.acne += 6; s.oil += 6; s.bloat += 2; s.health -= 5; return "Testosterone: strength up fast. Oily skin, back acne, blood pressure up."; } },
+    { id: "tren", sub: "gear", kind: "risky", gear: true, risk: "Extreme", name: "Trenbolone", dose: "anabolic steroid", blurb: "The strongest. The worst.", color: "#E6B0A0",
+      fx(s, c) { c.flat += 4.5; s.bf -= 0.6; s.acne += 10; s.oil += 8; s.glow -= 2; s.health -= 11; return "Tren: shredded and huge. Tren cough, night sweats, zero sleep, raging acne. HDL cratered."; } },
+    { id: "dbol", sub: "gear", kind: "risky", gear: true, risk: "High", name: "Dianabol", dose: "oral steroid", blurb: "Fast size. Very fast.", color: "#F5C6D0",
+      fx(s, c) { c.flat += 4; s.bloat += 5; s.acne += 5; s.health -= 8; return "Dbol blew you up — half of it water. Moon face, liver strain, BP spiking."; } },
+    { id: "anavar", sub: "gear", kind: "risky", gear: true, risk: "Medium", name: "Anavar", dose: "oral steroid", blurb: "“The mild one.”", color: "#F0E3F5",
+      fx(s, c) { c.flat += 2; s.bf -= 0.3; s.health -= 4; return "Anavar: a bit harder and leaner. Liver enzymes and cholesterol moved the wrong way."; } },
+    { id: "deca", sub: "gear", kind: "risky", gear: true, risk: "High", name: "Deca", dose: "nandrolone", blurb: "Joints feel amazing.", color: "#E3E8F7",
+      fx(s, c) { c.flat += 3; s.bloat += 3; s.health -= 6; return "Deca: joints felt great while it wrecked your hormones."; } },
+    { id: "sarm", sub: "gear", kind: "risky", gear: true, risk: "High · mislabeled", name: "SARMs (RAD-140)", dose: "gray-market", blurb: "“Steroids without side effects.”", color: "#DCEBF5",
+      fx(s, c) { c.flat += 1.5; s.acne += 2; s.health -= 5; return "The SARMs bottle was underdosed and spiked. Shut down anyway, liver strain."; } },
+  ];
+
+  const ALL = {};
+  SKIN.forEach(p => ALL[p.id] = { ...p, cat: "skin" });
+  STACK.forEach(p => ALL[p.id] = { ...p, cat: "stack" });
+  SPLITS.forEach(p => ALL[p.id] = { ...p, cat: "split" });
+  DIETS.forEach(p => ALL[p.id] = { ...p, cat: "diet" });
+  const kindOf = p => p.cope ? "cope" : (p.kind || "legit");
+
+  let s, r, tried, over, tab = "skin";
 
   function fresh() {
-    s = { week: 1, acne: 85, scars: 70, oil: 75, barrier: 50, irritation: 10, glow: 10, tretUses: 0 };
-    picked = [];
-    tried = new Set();
+    s = { week: 1, acne: 85, scars: 70, oil: 75, barrier: 50, irritation: 10, glow: 10,
+          muscle: 18, bf: 27, health: 72, bloat: 0, tan: 0,
+          tretUses: 0, clindaUses: 0, gearGains: 0, gearLast: false, everGear: false, tier: 0, copes: 0 };
+    r = { skin: [], stack: [], split: "none", diet: "fridge" };
+    tried = new Set(["none", "fridge"]);
     over = false;
     document.getElementById("log").innerHTML = "";
-    addLog("Day 0", "Hood up, eyes down. Your guy's face is a full breakout. The mirror is not his friend. Time to lock in.", "");
+    addLog("Day 0", "Sub-3. Hood up, eyes down, face full of breakouts, soft everywhere. Couch arc, fridge diet. Time to lock in.", "");
     document.getElementById("overlay").hidden = true;
     render();
   }
 
-  const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+  const clamp = (v, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
+  const c01 = v => clamp(v, 0, 1);
 
-  function progress() {
-    return Math.max(0, Math.min(1,
-      (100 - s.acne) / 100 * 0.35 + (100 - s.scars) / 100 * 0.25 + s.glow / 100 * 0.25 + s.barrier / 100 * 0.15));
-  }
-
-  function tierName(p) {
-    if (p < 0.3) return "Hood-up";
-    if (p < 0.45) return "Normie";
-    if (p < 0.6) return "Chadlite in training";
-    if (p < 0.75) return "Chadlite";
-    if (p < 0.88) return "Chad";
-    return "Model tier";
+  function looks() {
+    const skin = c01(((100 - s.acne) * .35 + (100 - s.scars) * .25 + s.glow * .25 + s.barrier * .15) / 100 - s.irritation / 400);
+    const lean = c01((28 - (s.bf + s.bloat * 0.4)) / 16);
+    const mus = c01(s.muscle / 75);
+    const phys = mus * .65 + lean * .35;
+    const score = Math.round(100 * (skin * .35 + phys * .55 + s.health / 100 * .10));
+    let tier = 0;
+    TIERS.forEach((t, i) => { if (score >= t.min) tier = i; });
+    if (tier === 7 && s.health < 60) tier = 6;
+    return { skin, lean, mus, phys, score, tier };
   }
 
   // ---------- Week resolution ----------
   function endWeek() {
     if (over) return;
-    const ids = picked.slice();
-    const ctx = { has: id => ids.includes(id) };
+    const healthBefore = s.health;
+    const used = [...r.skin, ...r.stack];
+    const c = { has: id => used.includes(id), mult: 0, flat: 0 };
     const lines = [];
-    let copeHit = false;
-    const usesActive = ids.some(id => ["tret", "bha", "aze"].includes(id));
+    let cope = false;
+    const split = ALL[r.split], diet = ALL[r.diet];
+    [...used, r.split, r.diet].forEach(id => tried.add(id));
 
-    ids.forEach(id => {
-      const p = byId[id];
-      tried.add(id);
-      lines.push(p.fx(s, ctx));
-      if (p.cope) copeHit = true;
-    });
+    r.skin.forEach(id => { const p = ALL[id]; lines.push(p.fx(s, c)); if (p.cope) cope = true; });
 
-    if (!ids.length) lines.push("You did nothing this week. Skin doesn't fix itself.");
+    const gearOn = r.stack.some(id => ALL[id].gear);
+    let risky = false;
+    r.stack.forEach(id => { const p = ALL[id]; lines.push(p.fx(s, c)); if (p.cope) cope = true; if (p.kind === "risky") risky = true; });
 
-    // Passive drift
+    // Training + food
+    if (split.fx) lines.push(split.fx(s));
+    if (split.cope) cope = true;
+    if (diet.cope) { cope = true; lines.push(diet.msg); }
+    const natty = Math.max(0, (100 - s.muscle) / 100);
+    const grow = split.stim * diet.m * natty * (1 + c.mult) + (diet.flat || 0);
+    const flat = c.flat * (split.stim > 0 ? 1 : 0.4);
+    s.muscle += grow + flat;
+    if (gearOn) { s.gearGains += flat; s.everGear = true; }
+    s.bf += diet.bf + split.bf;
+    s.health += diet.health + split.health;
+    s.acne += diet.acne || 0; s.oil += diet.oil || 0; s.glow += diet.glow || 0; s.barrier += diet.barrier || 0;
+
+    if (split.stim >= 3 && !split.cope) lines.push(`${split.name}: +${(grow + flat).toFixed(1)} muscle this week.`);
+    else if (r.split === "none") lines.push("No training this week. Muscle doesn't build itself.");
+    if (flat > 0 && split.stim === 0) lines.push("Gear without training — most of it wasted.");
+
+    // Natural recovery if living clean
+    if (!risky && !diet.cope && !split.cope) s.health += s.health < 50 ? 2 : 1;
+    // Healthy habits top out at 85; only a clean baseline gets you there.
+    if (s.health > healthBefore && s.health > 85) s.health = Math.max(healthBefore, 85);
+    if (s.bf < 8) { s.health -= 2; lines.push("Too lean — no energy, libido gone, mood tanked."); }
+
+    // Coming off gear
+    if (!gearOn && s.gearLast) {
+      const loss = s.gearGains * 0.3;
+      s.muscle -= loss; s.health -= 4; s.bloat = 0; s.gearGains = 0;
+      lines.push(`Came off gear: natural testosterone shut down. Lost ${loss.toFixed(1)} muscle and felt awful.`);
+    }
+    s.gearLast = gearOn;
+    if (gearOn) lines.push(bloodwork());
+
+    // Skin drift
+    const actives = used.some(id => ["tret", "bha", "aze", "adapalene", "retinal", "glycolic", "accutane", "vitc"].includes(id));
     s.acne += 2; s.oil += 2; s.glow -= 1;
-    if (usesActive && !ctx.has("spf")) { s.scars += 3; s.glow -= 2; lines.push("No sunscreen on actives — sun darkened your marks."); }
-    if (s.irritation > 60) { s.barrier -= 8; s.acne += 4; lines.push("Irritation is maxed out. Your skin is inflamed and breaking out."); }
+    if (actives && !c.has("spf")) { s.scars += 3; s.glow -= 2; lines.push("No sunscreen on actives — the sun darkened your marks."); }
+    if (s.irritation > 60) { s.barrier -= 8; s.acne += 4; lines.push("Irritation maxed out. Skin inflamed and breaking out."); }
     if (s.barrier < 25) { s.acne += 5; lines.push("Barrier is shot. Bacteria walk right in."); }
-    if (s.oil > 65) { s.acne += 2; }
+    if (s.oil > 65) s.acne += 2;
     s.irritation -= 10;
+    s.bloat *= 0.6;
 
-    ["acne", "scars", "oil", "barrier", "irritation", "glow"].forEach(k => s[k] = clamp(s[k]));
+    ["acne", "scars", "oil", "barrier", "irritation", "glow", "health", "muscle"].forEach(k => s[k] = clamp(s[k]));
+    s.bf = clamp(s.bf, 6, 40); s.bloat = clamp(s.bloat, 0, 20); s.tan = clamp(s.tan, 0, 1);
 
     const label = "Week " + s.week;
     s.week += 1;
-    if (copeHit) {
-      s.week += 1;
-      lines.push("You lost an extra week recovering from the cope.");
+    if (cope) {
+      s.week += 1; s.copes++;
+      lines.push("Lost an extra week recovering from the cope.");
       const m = document.getElementById("mirror");
       m.classList.remove("flash"); void m.offsetWidth; m.classList.add("flash");
     }
-    addLog(label, lines, copeHit ? "bad" : (ids.length ? "good" : ""));
-    picked = [];
+    addLog(label, lines, cope ? "bad" : "good");
 
-    if (s.acne <= 12 && s.scars <= 15 && s.barrier >= 60 && s.glow >= 70 && s.irritation <= 30) {
-      over = true; render(); showWin();
-    } else if (s.week > MAX_WEEKS) {
-      over = true; render(); showLose();
-    } else {
-      render();
+    const L = looks();
+    if (L.tier !== s.tier) {
+      const up = L.tier > s.tier;
+      addLog(up ? "Ascension" : "Descension",
+        up ? `Ascended to ${TIERS[L.tier].name}. Looks score ${L.score}.` : `Dropped to ${TIERS[L.tier].name}. Looks score ${L.score}.`, up ? "up" : "bad");
+      s.tier = L.tier;
     }
+
+    if (s.health <= 0) { over = true; render(); showEnd("dead"); }
+    else if (L.tier === 7) { over = true; render(); showEnd("win"); }
+    else if (s.week > MAX_WEEKS) { over = true; render(); showEnd("time"); }
+    else render();
+  }
+
+  function bloodwork() {
+    if (s.health > 60) return "Bloodwork: hematocrit and blood pressure creeping up.";
+    if (s.health > 35) return "Bloodwork: HDL tanked, liver enzymes high, BP 150/95. Doctor is worried.";
+    return "Bloodwork: heart strain, liver damage, BP 170/105. You are in real danger.";
   }
 
   // ---------- UI ----------
@@ -370,289 +611,455 @@
     log.prepend(div);
   }
 
+  function statRow(lbl, sub, v, width, goodness, text, cls = "") {
+    const col = goodness >= .65 ? "var(--good)" : goodness >= .35 ? "var(--amber)" : "var(--bad)";
+    return `<div class="stat ${cls}"><span class="lbl">${lbl}<small>${sub}</small></span>
+      <span class="bar"><i style="width:${width}%;background:${col}"></i></span><span class="num">${text}</span></div>`;
+  }
+
   function render() {
+    const L = looks();
     document.getElementById("clock").innerHTML = "WEEK <b>" + Math.min(s.week, MAX_WEEKS) + "</b> / " + MAX_WEEKS;
+    document.getElementById("score").innerHTML = L.score + "<small> / 100 looks</small>";
+    document.getElementById("tier").textContent = TIERS[L.tier].name;
 
-    const stats = document.getElementById("stats");
-    stats.innerHTML = STATS.map(st => {
-      const v = s[st.k];
-      const good = st.bad ? 100 - v : v;
-      const col = good >= 65 ? "var(--good)" : good >= 35 ? "var(--amber)" : "var(--bad)";
-      return `<div class="stat"><span class="lbl">${st.lbl}<small>${st.sub}</small></span>
-        <span class="bar"><i style="width:${v}%;background:${col}"></i></span><span class="num">${v}</span></div>`;
-    }).join("");
+    document.getElementById("ladder").innerHTML = TIERS.map((t, i) =>
+      `<div class="rung ${i < L.tier ? "passed" : i === L.tier ? "now" : i === 7 ? "goal" : ""}">${t.name}<small>${t.min}+</small></div>`).join("");
 
-    const slots = document.getElementById("slots");
-    slots.innerHTML = "";
-    for (let i = 0; i < SLOTS; i++) {
-      const id = picked[i];
-      const el = document.createElement(id ? "button" : "div");
-      el.className = "slot" + (id ? " filled" : "");
-      el.textContent = id ? byId[id].name : "Empty slot";
-      if (id) { el.type = "button"; el.title = "Remove"; el.onclick = () => toggle(id); }
-      slots.appendChild(el);
-    }
+    const bfW = (s.bf - 6) / 34 * 100;
+    document.getElementById("stats").innerHTML =
+      statRow("Health", "gear ruins it", s.health, s.health, s.health / 100, Math.round(s.health), "health") +
+      `<p class="group-title">Body</p>` +
+      statRow("Muscle", "higher is better", s.muscle, s.muscle, L.mus, s.muscle.toFixed(0)) +
+      statRow("Body fat", "~10–12% is ideal", s.bf, bfW, L.lean, s.bf.toFixed(1) + "%") +
+      statRow("Water bloat", "lower is better", s.bloat, s.bloat * 5, 1 - s.bloat / 12, s.bloat.toFixed(0)) +
+      `<p class="group-title">Skin</p>` +
+      [["acne", "Acne", true], ["scars", "Scars & marks", true], ["oil", "Oiliness", true], ["irritation", "Irritation", true], ["barrier", "Barrier", false], ["glow", "Glow", false]]
+        .map(([k, lbl, bad]) => { const v = Math.round(s[k]); return statRow(lbl, bad ? "lower is better" : "higher is better", v, v, bad ? 1 - v / 100 : v / 100, v); }).join("");
+
+    renderRoutine();
+    renderTabs();
     document.getElementById("endWeek").disabled = over;
+    drawAll(L);
+  }
 
-    const shelf = document.getElementById("shelf");
-    shelf.innerHTML = "";
-    PRODUCTS.forEach(p => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.id = "prod-" + p.id;
-      b.className = "card" + (picked.includes(p.id) ? " picked" : "");
-      b.setAttribute("aria-pressed", picked.includes(p.id));
-      b.innerHTML = `<span class="bottle" style="background:${p.color}"></span>
-        <span class="dose">${p.dose}</span><span class="name">${p.name}</span><span class="blurb">${p.blurb}</span>` +
-        (tried.has(p.id) ? `<span class="stamp${p.cope ? "" : " legit"}">${p.cope ? "COPE" : "LEGIT"}</span>` : "");
-      b.onclick = () => toggle(p.id);
-      shelf.appendChild(b);
-    });
+  function chip(id) { return `<button type="button" class="chip" data-drop="${id}">${ALL[id].name} ×</button>`; }
+  function renderRoutine() {
+    const el = document.getElementById("routine");
+    const empties = (n, max) => Array.from({ length: max - n }, () => `<span class="chip empty">empty</span>`).join("");
+    el.innerHTML = `
+      <div class="rrow"><span>Gym</span><div class="chips"><span class="chip static">${ALL[r.split].name}</span></div></div>
+      <div class="rrow"><span>Food</span><div class="chips"><span class="chip static">${ALL[r.diet].name}</span></div></div>
+      <div class="rrow"><span>Skin ${r.skin.length}/${SKIN_SLOTS}</span><div class="chips">${r.skin.map(chip).join("")}${empties(r.skin.length, SKIN_SLOTS)}</div></div>
+      <div class="rrow"><span>Stack ${r.stack.length}/${STACK_SLOTS}</span><div class="chips">${r.stack.map(chip).join("")}${empties(r.stack.length, STACK_SLOTS)}</div></div>`;
+    el.querySelectorAll("[data-drop]").forEach(b => b.onclick = () => toggle(b.dataset.drop));
+  }
 
-    document.getElementById("tier").textContent = "Tier: " + tierName(progress());
-    drawFace();
+  const TABS = [
+    { id: "skin", label: "Skincare", count: () => `${r.skin.length}/${SKIN_SLOTS}` },
+    { id: "gym", label: "Gym split", count: () => "" },
+    { id: "food", label: "Food", count: () => "" },
+    { id: "stack", label: "Peptides & gear", count: () => `${r.stack.length}/${STACK_SLOTS}` },
+  ];
+
+  function isPicked(p) {
+    if (p.cat === "skin") return r.skin.includes(p.id);
+    if (p.cat === "stack") return r.stack.includes(p.id);
+    if (p.cat === "split") return r.split === p.id;
+    return r.diet === p.id;
+  }
+
+  function cardHtml(p) {
+    const k = kindOf(p);
+    const stamp = tried.has(p.id) && !["none", "fridge"].includes(p.id)
+      ? `<span class="stamp ${k === "cope" ? "" : k}">${k === "cope" ? "COPE" : k === "risky" ? "RISKY" : "LEGIT"}</span>` : "";
+    const icon = p.color ? `<span class="bottle${p.sub && p.sub !== "supp" ? " vial" : ""}" style="background:${p.color}"></span>` : "";
+    const extra = p.sched ? `<span class="sched">${p.sched}</span>`
+      : p.meals ? `<span class="sched">${p.meals.split(" · ").join("<br>")}<br><b style="color:var(--amber-deep);font-weight:500">${p.macro}</b></span>` : "";
+    const risk = p.risk ? `<span class="risk">Health risk: ${p.risk}</span>` : "";
+    return `<button type="button" id="prod-${p.id}" class="card${isPicked(p) ? " picked" : ""}" aria-pressed="${isPicked(p)}" data-id="${p.id}">
+      ${icon}<span class="dose">${p.dose}</span><span class="name">${p.name}</span><span class="blurb">${p.blurb}</span>${risk}${extra}${stamp}</button>`;
+  }
+
+  function renderTabs() {
+    document.getElementById("tabs").innerHTML = TABS.map(t =>
+      `<button type="button" role="tab" class="tab" id="tab-${t.id}" aria-selected="${tab === t.id}" data-tab="${t.id}">${t.label}<span class="count">${t.count()}</span></button>`).join("");
+    document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; renderTabs(); });
+
+    const body = document.getElementById("tabBody");
+    let html = "";
+    if (tab === "skin") {
+      html = `<p class="hint">Pick up to ${SKIN_SLOTS}. Some are real, some are cope — you'll find out the hard way.</p><div class="shelf">${SKIN.map(p => cardHtml(ALL[p.id])).join("")}</div>`;
+    } else if (tab === "gym") {
+      html = `<p class="hint">Pick one split. Muscle grows fastest with volume, food and recovery.</p><div class="shelf wide">${SPLITS.map(p => cardHtml(ALL[p.id])).join("")}</div>`;
+    } else if (tab === "food") {
+      html = `<p class="hint">Pick one diet. Bulk to build, cut to reveal. Each card shows a day of eating.</p><div class="shelf wide">${DIETS.map(p => cardHtml(ALL[p.id])).join("")}</div>`;
+    } else {
+      const grp = (sub, title) => `<p class="subhead">${title}</p><div class="shelf">${STACK.filter(p => p.sub === sub).map(p => cardHtml(ALL[p.id])).join("")}</div>`;
+      html = `<p class="hint">Pick up to ${STACK_SLOTS}. Peptides and steroids build muscle fast — and drain your health every week you run them.</p>` +
+        grp("supp", "Supplements") + grp("peptide", "Peptides & growth factors") + grp("gear", "Steroids (gear)");
+    }
+    body.innerHTML = html;
+    body.querySelectorAll("[data-id]").forEach(b => b.onclick = () => toggle(b.dataset.id));
   }
 
   function toggle(id) {
     if (over) return;
-    if (picked.includes(id)) picked = picked.filter(x => x !== id);
-    else if (picked.length < SLOTS) picked.push(id);
+    const p = ALL[id];
+    if (p.cat === "split") r.split = id;
+    else if (p.cat === "diet") r.diet = id;
+    else {
+      const list = r[p.cat], max = p.cat === "skin" ? SKIN_SLOTS : STACK_SLOTS;
+      if (list.includes(id)) r[p.cat] = list.filter(x => x !== id);
+      else if (list.length < max) list.push(id);
+    }
     render();
   }
 
-  function showWin() {
+  function showEnd(kind) {
+    const L = looks();
     const m = document.getElementById("modal");
-    m.className = "modal";
-    m.innerHTML = `
-      <h2>You mogged. It's over (for everyone else).</h2>
-      <p>You won. ${s.week - 1} weeks ago your guy was hiding under a hoodie, skipping photos and picking at a face full of breakouts.
-      Now look at him: skin clear as glass, marks faded, barrier rock-solid, and a glow that catches every light in the room.
-      Tretinoin did the heavy lifting, peptides rebuilt what the acne broke, and sunscreen protected every bit of progress — while you
-      walked straight past the lemon juice, the toothpaste, and the mewing cream. Scouts are already comparing him to Chico Lachowski
-      and Jordan Barrett, and his camera roll finally has more than zero selfies. Consistency beat cope. You now officially know
-      how to mog like Namish.</p>
-      <p class="fine">Final stats — acne ${s.acne} · scars ${s.scars} · barrier ${s.barrier} · glow ${s.glow} · irritation ${s.irritation}</p>
-      <div class="actions"><button class="btn" type="button" id="again">Play again</button></div>`;
+    const stats = `Looks ${L.score} · muscle ${Math.round(s.muscle)} · body fat ${s.bf.toFixed(1)}% · acne ${Math.round(s.acne)} · health ${Math.round(s.health)}`;
+    if (kind === "win") {
+      m.className = "modal";
+      m.innerHTML = `
+        <h2>True Adam. You mogged everyone.</h2>
+        <p>You won. ${s.week - 1} weeks ago your guy was a sub-3 hiding under a hoodie with a face full of breakouts and a body built by the couch.
+        Then he climbed every rung: sub-5, LTN, MTN, HTN, Chadlite, Chad — and now True Adam. His skin is clear as glass, the acne scars are gone,
+        his body fat is down to ${s.bf.toFixed(1)}% with abs showing, his shoulders are wide, and his jawline could cut glass.
+        Tretinoin and peptides fixed the face, a real split and real food built the body, and he walked past every lemon toner, crash diet and ego lift on the way.
+        ${s.everGear ? "He did touch the gear — the bloodwork remembers — but he pulled out before it ruined him." : "And he did it completely natty."}
+        Scouts are comparing him to Chico Lachowski and Jordan Barrett, and every room goes quiet when he walks in.
+        You now officially know how to mog like Namish.</p>
+        <p class="fine">${stats}</p>
+        <div class="actions"><button class="btn" type="button" id="again">Play again</button></div>`;
+    } else if (kind === "dead") {
+      m.className = "modal lose";
+      m.innerHTML = `
+        <h2>Hospitalized.</h2>
+        <p>His health hit zero. The gear, the crash diets and the cope stacked up until his heart and liver couldn't take it. He reached
+        ${TIERS[L.tier].name} — from a hospital bed. No tier is worth that. Run it back and keep health above everything.</p>
+        <p class="fine">${stats}</p>
+        <div class="actions"><button class="btn" type="button" id="again">Try again</button></div>`;
+    } else {
+      const tip = L.skin < .75 ? "His skin held him back — tretinoin, moisturizer and SPF every week, and fight acne with benzoyl peroxide or niacinamide."
+        : L.lean < .9 ? "He was still carrying too much fat — cut down toward 10–12% to reveal the muscle and the jaw."
+        : L.mus < .95 ? "He needed more muscle — a 4–6 day split, a lean bulk, creatine and sleep."
+        : "His health dragged the score down — the stack cost more than it gave.";
+      m.className = "modal lose";
+      m.innerHTML = `
+        <h2>Out of time at ${TIERS[L.tier].name}.</h2>
+        <p>Forty weeks are up and your guy is ${TIERS[L.tier].name}, not True Adam. ${tip} Every cope choice cost an extra week. Run it back.</p>
+        <p class="fine">${stats}</p>
+        <div class="actions"><button class="btn" type="button" id="again">Try again</button></div>`;
+    }
     document.getElementById("overlay").hidden = false;
     document.getElementById("again").onclick = fresh;
     document.getElementById("again").focus();
   }
 
-  function showLose() {
-    const m = document.getElementById("modal");
-    m.className = "modal lose";
-    const tip = s.barrier < 60 ? "Your barrier never recovered — moisturizer is not optional."
-      : s.glow < 70 ? "You never built up glow — peptides and sunscreen are how you get it."
-      : s.scars > 15 ? "Your marks never faded — tretinoin, azelaic acid, and copper peptides handle texture."
-      : "Your acne never fully cleared — tretinoin and benzoyl peroxide (on different weeks) are the backbone.";
-    m.innerHTML = `
-      <h2>Out of time. Still coping.</h2>
-      <p>Twenty weeks are up and your guy is ${tierName(progress()).toLowerCase()} — not model tier. ${tip}
-      Every cope product also cost you an extra week. Run it back.</p>
-      <p class="fine">Final stats — acne ${s.acne} · scars ${s.scars} · barrier ${s.barrier} · glow ${s.glow} · irritation ${s.irritation}</p>
-      <div class="actions"><button class="btn" type="button" id="again">Try again</button></div>`;
-    document.getElementById("overlay").hidden = false;
-    document.getElementById("again").onclick = fresh;
-    document.getElementById("again").focus();
-  }
+  // ---------- Rendering ----------
+  const bodyCv = document.getElementById("body"), faceCv = document.getElementById("face");
+  const gb = bodyCv.getContext("2d"), gf = faceCv.getContext("2d");
+  gb.scale(2, 2); gf.scale(2, 2);
+  const CX = 180;
 
-  // ---------- Face rendering ----------
-  const cv = document.getElementById("face");
-  const g = cv.getContext("2d");
-  const W = 360, H = 420, CX = 180;
-  g.scale(2, 2);
-
-  // Deterministic spot positions so pimples disappear one by one instead of reshuffling.
   let seed = 7;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const zones = [
-    [CX, 150, 60, 22], [CX - 55, 245, 28, 38], [CX + 55, 245, 28, 38],
-    [CX, 320, 30, 14], [CX - 35, 300, 22, 16], [CX + 35, 300, 22, 16], [CX, 225, 10, 30],
-  ];
+  const zones = [[CX, 150, 60, 22], [CX - 55, 245, 28, 38], [CX + 55, 245, 28, 38], [CX, 320, 30, 14], [CX - 35, 300, 22, 16], [CX + 35, 300, 22, 16], [CX, 225, 10, 30]];
   function spots(n) {
     const out = [];
     for (let i = 0; i < n; i++) {
       const z = zones[Math.floor(rnd() * zones.length)];
-      const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd());
-      out.push({ x: z[0] + Math.cos(a) * z[2] * r, y: z[1] + Math.sin(a) * z[3] * r, s: 0.7 + rnd() * 0.8 });
+      const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd());
+      out.push({ x: z[0] + Math.cos(a) * z[2] * rr, y: z[1] + Math.sin(a) * z[3] * rr, s: 0.7 + rnd() * 0.8 });
     }
     return out;
   }
   const ACNE = spots(55), SCARS = spots(40), FLAKES = spots(30);
 
-  function facePath(m) {
-    const jw = 82 + 8 * m, jy = 300 - 12 * m, cw = 36 - 10 * m, chinY = 350 + 4 * m;
-    const soft = 1 - m;
-    g.beginPath();
-    g.moveTo(CX - 92, 190);
-    g.bezierCurveTo(CX - 98, 95, CX + 98, 95, CX + 92, 190);
-    g.bezierCurveTo(CX + 94, 240, CX + jw + 4 * soft, jy - 30, CX + jw, jy);
-    g.quadraticCurveTo(CX + jw - 20 * soft - 6, jy + 30 + 10 * soft, CX + cw, chinY - 6);
-    g.quadraticCurveTo(CX, chinY + 6 * soft, CX - cw, chinY - 6);
-    g.quadraticCurveTo(CX - jw + 20 * soft + 6, jy + 30 + 10 * soft, CX - jw, jy);
-    g.bezierCurveTo(CX - jw - 4 * soft, jy - 30, CX - 94, 240, CX - 92, 190);
-    g.closePath();
+  function mix(a, b, t) {
+    const pa = a.match(/\w\w/g).map(h => parseInt(h, 16)), pb = b.match(/\w\w/g).map(h => parseInt(h, 16));
+    return "rgb(" + pa.map((v, i) => Math.round(v + (pb[i] - v) * t)).join(",") + ")";
+  }
+  function tones() {
+    return { top: mix("EBC19E", "B98560", s.tan), bot: mix("DDAA84", "A8744F", s.tan), mid: mix("D9A57F", "A8744F", s.tan) };
+  }
+  function outfit(L) { return L.tier <= 1 ? "hoodie" : L.tier >= 5 && s.bf < 15 ? "shirtless" : "tee"; }
+
+  function faceParams(L) {
+    const t = c01((L.score - 28) / 60);
+    const em = t * t * (3 - 2 * t);
+    const jaw = c01(0.55 * em + 0.45 * L.lean);
+    const fat = c01((s.bf - 14) / 16) + s.bloat / 20;
+    return { em, jaw, fat };
   }
 
-  function drawFace() {
-    const m = progress();
-    const ease = m * m * (3 - 2 * m);
-    g.clearRect(0, 0, W, H);
+  function facePath(c, m, fat) {
+    const jw = 82 + 8 * m + 10 * fat, jy = 300 - 12 * m + 6 * fat, cw = 36 - 10 * m + 10 * fat, chinY = 350 + 4 * m, tw = 92 + 5 * fat;
+    const soft = 1 - m;
+    c.beginPath();
+    c.moveTo(CX - tw, 190);
+    c.bezierCurveTo(CX - tw - 6, 95, CX + tw + 6, 95, CX + tw, 190);
+    c.bezierCurveTo(CX + tw + 2, 240, CX + jw + 4 * soft, jy - 30, CX + jw, jy);
+    c.quadraticCurveTo(CX + jw - 20 * soft - 6, jy + 30 + 10 * soft, CX + cw, chinY - 6);
+    c.quadraticCurveTo(CX, chinY + 6 * soft, CX - cw, chinY - 6);
+    c.quadraticCurveTo(CX - jw + 20 * soft + 6, jy + 30 + 10 * soft, CX - jw, jy);
+    c.bezierCurveTo(CX - jw - 4 * soft, jy - 30, CX - tw - 2, 240, CX - tw, 190);
+    c.closePath();
+  }
 
-    // Background glow once he starts mogging
-    if (ease > 0.5) {
-      const bg = g.createRadialGradient(CX, 200, 40, CX, 200, 240);
-      bg.addColorStop(0, `rgba(255,236,200,${(ease - 0.5) * 1.2})`);
-      bg.addColorStop(1, "rgba(255,236,200,0)");
-      g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  // Draws the head in a 360×420 box. full=true adds background + shoulders (close-up).
+  function drawHead(c, L, full) {
+    const { em, jaw, fat } = faceParams(L);
+    const T = tones();
+    const fit = outfit(L);
+    if (full) {
+      c.clearRect(0, 0, 360, 420);
+      if (em > 0.5) {
+        const bg = c.createRadialGradient(CX, 200, 40, CX, 200, 240);
+        bg.addColorStop(0, `rgba(255,236,200,${(em - 0.5) * 1.2})`); bg.addColorStop(1, "rgba(255,236,200,0)");
+        c.fillStyle = bg; c.fillRect(0, 0, 360, 420);
+      }
+      const shirt = fit === "hoodie" ? "#6C7A86" : fit === "tee" ? "#2E4A66" : T.mid;
+      c.fillStyle = shirt;
+      c.beginPath(); c.moveTo(20, 420); c.bezierCurveTo(30, 380, 110, 370, 140, 360);
+      c.lineTo(220, 360); c.bezierCurveTo(250, 370, 330, 380, 340, 420); c.closePath(); c.fill();
+      c.fillStyle = T.mid; c.fillRect(CX - 30, 320, 60, 50);
+      if (fit === "hoodie") { c.fillStyle = "#56636E"; c.beginPath(); c.ellipse(CX, 200, 128, 160, 0, Math.PI * 0.95, Math.PI * 2.05); c.fill(); }
+    } else if (fit === "hoodie") {
+      c.fillStyle = "#56636E"; c.beginPath(); c.ellipse(CX, 200, 128, 160, 0, Math.PI * 0.95, Math.PI * 2.05); c.fill();
     }
 
-    // Shoulders: hoodie -> black turtleneck
-    const shirt = ease > 0.7 ? "#16191C" : "#6C7A86";
-    g.fillStyle = shirt;
-    g.beginPath(); g.moveTo(20, H); g.bezierCurveTo(30, 380, 110, 370, 140, 360);
-    g.lineTo(220, 360); g.bezierCurveTo(250, 370, 330, 380, 340, H); g.closePath(); g.fill();
-    // Neck
-    g.fillStyle = "#D9A57F";
-    g.fillRect(CX - 30, 320, 60, 60);
-    if (ease > 0.7) { g.fillStyle = shirt; g.beginPath(); g.ellipse(CX, 372, 44, 16, 0, 0, Math.PI * 2); g.fill(); }
+    facePath(c, jaw, fat);
+    const g = c.createLinearGradient(0, 100, 0, 360);
+    g.addColorStop(0, T.top); g.addColorStop(1, T.bot);
+    c.fillStyle = g; c.fill();
 
-    // Hood behind head when early
-    if (ease < 0.3) {
-      g.fillStyle = "#56636E";
-      g.beginPath(); g.ellipse(CX, 200, 128, 160, 0, Math.PI * 0.95, Math.PI * 2.05); g.fill();
+    c.save(); facePath(c, jaw, fat); c.clip();
+    if (jaw > 0.2) {
+      c.fillStyle = `rgba(150,95,60,${0.22 * jaw})`;
+      [-1, 1].forEach(d => { c.beginPath(); c.ellipse(CX + d * 72, 285, 14, 40, d * -0.4, 0, Math.PI * 2); c.fill(); });
     }
-
-    // Face base
-    facePath(ease);
-    const skin = g.createLinearGradient(0, 100, 0, 360);
-    skin.addColorStop(0, "#EBC19E"); skin.addColorStop(1, "#DDAA84");
-    g.fillStyle = skin; g.fill();
-
-    g.save();
-    facePath(ease); g.clip();
-
-    // Contour under cheekbones / jaw as he gets sharper
-    if (ease > 0.2) {
-      g.fillStyle = `rgba(150,95,60,${0.22 * ease})`;
-      [-1, 1].forEach(d => { g.beginPath(); g.ellipse(CX + d * 72, 285, 14, 40, d * -0.4, 0, Math.PI * 2); g.fill(); });
-    }
-    // Irritation flush
     if (s.irritation > 10) {
-      g.fillStyle = `rgba(220,70,60,${s.irritation / 260})`;
-      [-1, 1].forEach(d => { g.beginPath(); g.ellipse(CX + d * 55, 250, 42, 34, 0, 0, Math.PI * 2); g.fill(); });
+      c.fillStyle = `rgba(220,70,60,${s.irritation / 260})`;
+      [-1, 1].forEach(d => { c.beginPath(); c.ellipse(CX + d * 55, 250, 42, 34, 0, 0, Math.PI * 2); c.fill(); });
     }
-    // Oil shine on T-zone
     if (s.oil > 20) {
-      g.fillStyle = `rgba(255,255,235,${s.oil / 230})`;
-      g.beginPath(); g.ellipse(CX, 145, 42, 10, 0, 0, Math.PI * 2); g.fill();
-      g.beginPath(); g.ellipse(CX + 3, 240, 5, 24, 0, 0, Math.PI * 2); g.fill();
+      c.fillStyle = `rgba(255,255,235,${s.oil / 230})`;
+      c.beginPath(); c.ellipse(CX, 145, 42, 10, 0, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.ellipse(CX + 3, 240, 5, 24, 0, 0, Math.PI * 2); c.fill();
     }
-    // Scars / marks
     SCARS.slice(0, Math.round(s.scars * 0.4)).forEach(p => {
-      g.fillStyle = "rgba(140,80,55,.45)";
-      g.beginPath(); g.arc(p.x, p.y, 3.2 * p.s, 0, Math.PI * 2); g.fill();
+      c.fillStyle = "rgba(140,80,55,.45)"; c.beginPath(); c.arc(p.x, p.y, 3.2 * p.s, 0, Math.PI * 2); c.fill();
     });
-    // Flakes from a wrecked barrier
     if (s.barrier < 40) {
       FLAKES.slice(0, Math.round((40 - s.barrier) * 0.7)).forEach(p => {
-        g.strokeStyle = "rgba(255,245,235,.85)"; g.lineWidth = 1.2;
-        g.beginPath(); g.moveTo(p.x - 4, p.y); g.lineTo(p.x + 3, p.y - 2); g.stroke();
+        c.strokeStyle = "rgba(255,245,235,.85)"; c.lineWidth = 1.2;
+        c.beginPath(); c.moveTo(p.x - 4, p.y); c.lineTo(p.x + 3, p.y - 2); c.stroke();
       });
     }
-    // Acne
     ACNE.slice(0, Math.round(s.acne * 0.55)).forEach(p => {
-      const r = 4.5 * p.s;
-      const grd = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 1.8);
-      grd.addColorStop(0, "rgba(200,50,45,.9)"); grd.addColorStop(1, "rgba(200,50,45,0)");
-      g.fillStyle = grd; g.beginPath(); g.arc(p.x, p.y, r * 1.8, 0, Math.PI * 2); g.fill();
-      g.fillStyle = "#F4E3C8"; g.beginPath(); g.arc(p.x - r * .2, p.y - r * .2, r * .38, 0, Math.PI * 2); g.fill();
+      const rr = 4.5 * p.s;
+      const gr = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr * 1.8);
+      gr.addColorStop(0, "rgba(200,50,45,.9)"); gr.addColorStop(1, "rgba(200,50,45,0)");
+      c.fillStyle = gr; c.beginPath(); c.arc(p.x, p.y, rr * 1.8, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#F4E3C8"; c.beginPath(); c.arc(p.x - rr * .2, p.y - rr * .2, rr * .38, 0, Math.PI * 2); c.fill();
     });
-    // Glow highlights
     if (s.glow > 15) {
       const a = s.glow / 170;
       [-1, 1].forEach(d => {
-        const hg = g.createRadialGradient(CX + d * 50, 225, 0, CX + d * 50, 225, 34);
+        const hg = c.createRadialGradient(CX + d * 50, 225, 0, CX + d * 50, 225, 34);
         hg.addColorStop(0, `rgba(255,250,240,${a})`); hg.addColorStop(1, "rgba(255,250,240,0)");
-        g.fillStyle = hg; g.beginPath(); g.arc(CX + d * 50, 225, 34, 0, Math.PI * 2); g.fill();
+        c.fillStyle = hg; c.beginPath(); c.arc(CX + d * 50, 225, 34, 0, Math.PI * 2); c.fill();
       });
-      g.fillStyle = `rgba(255,250,240,${a})`;
-      g.beginPath(); g.ellipse(CX + 2, 250, 3, 14, 0, 0, Math.PI * 2); g.fill();
     }
-    g.restore();
+    if (em > 0.6) {
+      c.fillStyle = `rgba(60,45,35,${(em - 0.6) * 0.35})`;
+      c.beginPath(); c.ellipse(CX, 330, 70, 40, 0, 0, Math.PI * 2); c.fill();
+    }
+    c.restore();
 
     // Ears
-    g.fillStyle = "#D9A57F";
-    [-1, 1].forEach(d => { g.beginPath(); g.ellipse(CX + d * 96, 225, 11, 22, 0, 0, Math.PI * 2); g.fill(); });
+    c.fillStyle = T.mid;
+    [-1, 1].forEach(d => { c.beginPath(); c.ellipse(CX + d * (96 + 5 * fat), 225, 11, 22, 0, 0, Math.PI * 2); c.fill(); });
 
-    // Eyes: tilt gets "hunter" as he progresses
-    const tilt = 0.12 * ease;
+    // Eyes & brows
+    const tilt = 0.12 * em;
     [-1, 1].forEach(d => {
       const ex = CX + d * 36, ey = 205;
-      g.save(); g.translate(ex, ey); g.rotate(-d * tilt);
-      g.fillStyle = "#FFFFFF"; g.beginPath(); g.ellipse(0, 0, 17, 9 - 2 * ease, 0, 0, Math.PI * 2); g.fill();
-      g.fillStyle = ease > 0.6 ? "#5E8FA8" : "#5A3E2B"; g.beginPath(); g.arc(0, 0, 6.5, 0, Math.PI * 2); g.fill();
-      g.fillStyle = "#111"; g.beginPath(); g.arc(0, 0, 3, 0, Math.PI * 2); g.fill();
-      g.fillStyle = "#fff"; g.beginPath(); g.arc(2, -2, 1.4, 0, Math.PI * 2); g.fill();
-      // upper lid
-      g.strokeStyle = "#3A2A20"; g.lineWidth = 2.2;
-      g.beginPath(); g.ellipse(0, 0, 17, 9 - 2 * ease, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
-      // Eye bags early on
-      if (ease < 0.4) { g.strokeStyle = "rgba(120,80,70,.4)"; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 6, 13, 0.2, Math.PI - 0.2); g.stroke(); }
-      g.restore();
-      // Brows
-      g.strokeStyle = "#2E221B"; g.lineWidth = 4 + 1.5 * ease; g.lineCap = "round";
-      g.beginPath();
-      g.moveTo(CX + d * 18, 188 - 4 * ease + (1 - ease) * -2);
-      g.quadraticCurveTo(CX + d * 36, 180 - 2 * ease, CX + d * 54, 186 - 6 * ease + (1 - ease) * 4);
-      g.stroke();
+      c.save(); c.translate(ex, ey); c.rotate(-d * tilt);
+      c.fillStyle = "#FFFFFF"; c.beginPath(); c.ellipse(0, 0, 17, 9 - 2 * em, 0, 0, Math.PI * 2); c.fill();
+      c.fillStyle = em > 0.6 ? "#5E8FA8" : "#5A3E2B"; c.beginPath(); c.arc(0, 0, 6.5, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#111"; c.beginPath(); c.arc(0, 0, 3, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#fff"; c.beginPath(); c.arc(2, -2, 1.4, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = "#3A2A20"; c.lineWidth = 2.2;
+      c.beginPath(); c.ellipse(0, 0, 17, 9 - 2 * em, 0, Math.PI * 1.05, Math.PI * 1.95); c.stroke();
+      if (em < 0.4) { c.strokeStyle = "rgba(120,80,70,.4)"; c.lineWidth = 1.5; c.beginPath(); c.arc(0, 6, 13, 0.2, Math.PI - 0.2); c.stroke(); }
+      c.restore();
+      c.strokeStyle = "#2E221B"; c.lineWidth = 4 + 1.5 * em; c.lineCap = "round";
+      c.beginPath();
+      c.moveTo(CX + d * 18, 186 - 4 * em);
+      c.quadraticCurveTo(CX + d * 36, 180 - 2 * em, CX + d * 54, 190 - 10 * em);
+      c.stroke();
     });
 
     // Nose
-    g.strokeStyle = "rgba(120,70,45,.6)"; g.lineWidth = 2; g.lineCap = "round";
-    g.beginPath(); g.moveTo(CX - 4, 212); g.quadraticCurveTo(CX - 8, 250, CX - 12, 262);
-    g.quadraticCurveTo(CX, 270, CX + 12, 262); g.stroke();
+    c.strokeStyle = "rgba(120,70,45,.6)"; c.lineWidth = 2; c.lineCap = "round";
+    c.beginPath(); c.moveTo(CX - 4, 212); c.quadraticCurveTo(CX - 8, 250, CX - 12, 262); c.quadraticCurveTo(CX, 270, CX + 12, 262); c.stroke();
+    // Mouth
+    c.strokeStyle = "#8E4B3E"; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(CX - 24, 296); c.quadraticCurveTo(CX, 290 + 12 * em, CX + 24, 296 - 3 * em); c.stroke();
 
-    // Mouth: frown -> slight smirk
-    g.strokeStyle = "#8E4B3E"; g.lineWidth = 3;
-    const curve = -6 + 12 * ease;
-    g.beginPath(); g.moveTo(CX - 24, 296); g.quadraticCurveTo(CX, 296 + curve, CX + 24, 296 - 3 * ease); g.stroke();
-    if (ease > 0.5) { g.fillStyle = `rgba(160,90,75,${ease * 0.35})`; g.beginPath(); g.ellipse(CX, 304, 14, 3, 0, 0, Math.PI * 2); g.fill(); }
-    // Stubble shadow when mogging
-    if (ease > 0.6) {
-      g.save(); facePath(ease); g.clip();
-      g.fillStyle = `rgba(60,45,35,${(ease - 0.6) * 0.35})`;
-      g.beginPath(); g.ellipse(CX, 330, 70, 40, 0, 0, Math.PI * 2); g.fill();
-      g.restore();
-    }
-
-    // Hair: greasy curtain -> swept-back model hair
-    g.fillStyle = "#2A1E17";
-    if (ease < 0.5) {
-      g.beginPath();
-      g.moveTo(CX - 98, 185);
-      g.bezierCurveTo(CX - 110, 70, CX + 110, 70, CX + 98, 185);
-      for (let i = 0; i <= 8; i++) {
-        const x = CX + 98 - i * 24.5;
-        const y = 150 + (i % 2 ? 22 : 8) + (0.5 - ease) * 20;
-        g.lineTo(x, y);
-      }
-      g.closePath(); g.fill();
+    // Hair
+    c.fillStyle = "#2A1E17";
+    if (em < 0.5) {
+      c.beginPath(); c.moveTo(CX - 98, 185);
+      c.bezierCurveTo(CX - 110, 70, CX + 110, 70, CX + 98, 185);
+      for (let i = 0; i <= 8; i++) c.lineTo(CX + 98 - i * 24.5, 150 + (i % 2 ? 22 : 8) + (0.5 - em) * 20);
+      c.closePath(); c.fill();
     } else {
-      const lift = (ease - 0.5) * 2;
-      g.beginPath();
-      g.moveTo(CX - 96, 190);
-      g.bezierCurveTo(CX - 118, 60 - 10 * lift, CX + 60, 40 - 16 * lift, CX + 100, 110);
-      g.bezierCurveTo(CX + 108, 140, CX + 100, 170, CX + 96, 190);
-      g.quadraticCurveTo(CX + 88, 140, CX + 50, 128);
-      g.quadraticCurveTo(CX - 10, 112 - 6 * lift, CX - 60, 134);
-      g.quadraticCurveTo(CX - 88, 150, CX - 96, 190);
-      g.closePath(); g.fill();
-      g.strokeStyle = "rgba(255,255,255,.12)"; g.lineWidth = 2;
-      for (let i = 0; i < 4; i++) {
-        g.beginPath(); g.moveTo(CX - 60 + i * 30, 128 - i * 2); g.quadraticCurveTo(CX + i * 20, 70, CX + 70 + i * 6, 100 + i * 6); g.stroke();
+      const lift = (em - 0.5) * 2;
+      c.beginPath(); c.moveTo(CX - 96, 190);
+      c.bezierCurveTo(CX - 118, 60 - 10 * lift, CX + 60, 40 - 16 * lift, CX + 100, 110);
+      c.bezierCurveTo(CX + 108, 140, CX + 100, 170, CX + 96, 190);
+      c.quadraticCurveTo(CX + 88, 140, CX + 50, 128);
+      c.quadraticCurveTo(CX - 10, 112 - 6 * lift, CX - 60, 134);
+      c.quadraticCurveTo(CX - 88, 150, CX - 96, 190);
+      c.closePath(); c.fill();
+      c.strokeStyle = "rgba(255,255,255,.12)"; c.lineWidth = 2;
+      for (let i = 0; i < 4; i++) { c.beginPath(); c.moveTo(CX - 60 + i * 30, 128 - i * 2); c.quadraticCurveTo(CX + i * 20, 70, CX + 70 + i * 6, 100 + i * 6); c.stroke(); }
+    }
+  }
+
+  function limb(c, x1, y1, x2, y2, w, color) {
+    c.strokeStyle = color; c.lineWidth = w; c.lineCap = "round";
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+  }
+
+  function drawBody(c, L) {
+    const W = 360, H = 680;
+    const { em } = faceParams(L);
+    const T = tones();
+    const mu = L.mus, fat = c01((s.bf + s.bloat * 0.5 - 10) / 22);
+    const fit = outfit(L);
+    const shirt = fit === "hoodie" ? "#6C7A86" : "#2E4A66";
+    c.clearRect(0, 0, W, H);
+    if (em > 0.5) {
+      const bg = c.createRadialGradient(CX, 300, 60, CX, 300, 380);
+      bg.addColorStop(0, `rgba(255,236,200,${(em - 0.5) * 1.1})`); bg.addColorStop(1, "rgba(255,236,200,0)");
+      c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    }
+
+    const SW = 50 + 34 * mu + 10 * fat, WW = 36 + 34 * fat + 5 * mu, HW = 42 + 18 * fat + 4 * mu;
+    const shY = 196, waistY = 330, hipY = 382;
+
+    // Legs
+    const thigh = 38 + 16 * mu + 20 * fat, calf = 24 + 10 * mu + 6 * fat;
+    [-1, 1].forEach(d => {
+      const hx = CX + d * (HW * 0.5), kx = CX + d * (HW * 0.42 + 4), ax = CX + d * (HW * 0.38 + 4);
+      limb(c, hx, hipY, kx, 520, thigh, T.mid);
+      limb(c, kx, 520, ax, 612, calf, T.mid);
+      if (mu > 0.4) { c.strokeStyle = `rgba(120,70,45,${0.3 * mu})`; c.lineWidth = 1.5; c.beginPath(); c.arc(kx - d * 4, 470, thigh * 0.35, d > 0 ? 2.2 : 0.2, d > 0 ? 3.0 : 0.9); c.stroke(); }
+      c.fillStyle = "#EDEDED"; c.beginPath(); c.ellipse(ax + d * 8, 630, 22, 10, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = "#12302C"; c.lineWidth = 2; c.stroke();
+    });
+    // Shorts
+    c.fillStyle = "#1E2A30";
+    c.beginPath();
+    c.moveTo(CX - HW - 4, 360); c.lineTo(CX + HW + 4, 360);
+    c.lineTo(CX + HW + 10 + 6 * fat, 452); c.lineTo(CX + 6, 452); c.lineTo(CX, 410); c.lineTo(CX - 6, 452);
+    c.lineTo(CX - HW - 10 - 6 * fat, 452); c.closePath(); c.fill();
+
+    // Neck
+    c.fillStyle = T.mid;
+    const nw = 18 + 8 * mu;
+    c.fillRect(CX - nw, 140, nw * 2, 64);
+    if (mu > 0.4) { c.fillStyle = T.mid; c.beginPath(); c.moveTo(CX - nw, 180); c.quadraticCurveTo(CX - SW * 0.6, 186, CX - SW + 6, shY + 4); c.lineTo(CX + SW - 6, shY + 4); c.quadraticCurveTo(CX + SW * 0.6, 186, CX + nw, 180); c.fill(); }
+
+    // Torso
+    const torsoColor = fit === "shirtless" ? T.mid : shirt;
+    c.fillStyle = torsoColor;
+    c.beginPath();
+    c.moveTo(CX - nw, 186);
+    c.quadraticCurveTo(CX - SW + 6, 188, CX - SW, shY + 16);
+    c.bezierCurveTo(CX - SW + 4, 270, CX - WW - 10 * fat, 300, CX - WW, waistY);
+    c.quadraticCurveTo(CX - WW - 6 * fat, 360, CX - HW, hipY - 20);
+    c.lineTo(CX + HW, hipY - 20);
+    c.quadraticCurveTo(CX + WW + 6 * fat, 360, CX + WW, waistY);
+    c.bezierCurveTo(CX + WW + 10 * fat, 300, CX + SW - 4, 270, CX + SW, shY + 16);
+    c.quadraticCurveTo(CX + SW - 6, 188, CX + nw, 186);
+    c.closePath(); c.fill();
+
+    if (fit === "shirtless") {
+      // Pecs
+      c.strokeStyle = `rgba(120,70,45,${0.25 + 0.35 * mu})`; c.lineWidth = 2;
+      [-1, 1].forEach(d => { c.beginPath(); c.moveTo(CX, 214); c.quadraticCurveTo(CX + d * SW * 0.45, 262 + 6 * mu, CX + d * (SW - 14), 226); c.stroke(); });
+      // Abs
+      const a = c01((15 - s.bf) / 6) * 0.5;
+      if (a > 0) {
+        c.strokeStyle = `rgba(120,70,45,${a})`; c.lineWidth = 2;
+        c.beginPath(); c.moveTo(CX, 262); c.lineTo(CX, 350); c.stroke();
+        [272, 296, 320].forEach((y, i) => [-1, 1].forEach(d => {
+          c.beginPath(); c.moveTo(CX + d * 4, y + 8); c.quadraticCurveTo(CX + d * (14 + 4 * mu), y + 2, CX + d * (22 + 6 * mu - i * 2), y + 10); c.stroke();
+        }));
+        // Obliques / V-line
+        [-1, 1].forEach(d => { c.beginPath(); c.moveTo(CX + d * (WW - 6), 320); c.quadraticCurveTo(CX + d * 22, 350, CX + d * 10, 372); c.stroke(); });
+      }
+      // Tan glow
+      if (s.glow > 40) {
+        c.fillStyle = `rgba(255,250,240,${(s.glow - 40) / 300})`;
+        [-1, 1].forEach(d => { c.beginPath(); c.ellipse(CX + d * SW * 0.4, 236, 18, 10, 0, 0, Math.PI * 2); c.fill(); });
+      }
+    } else {
+      // Shirt folds / hoodie pocket
+      c.strokeStyle = "rgba(0,0,0,.18)"; c.lineWidth = 2;
+      if (fit === "hoodie") {
+        c.strokeRect(CX - 34 - 6 * fat, 300, 68 + 12 * fat, 44);
+        c.beginPath(); c.moveTo(CX - 10, 190); c.lineTo(CX - 12, 240); c.moveTo(CX + 10, 190); c.lineTo(CX + 12, 240); c.stroke();
+      } else {
+        if (mu > 0.35) [-1, 1].forEach(d => { c.beginPath(); c.moveTo(CX, 220); c.quadraticCurveTo(CX + d * SW * 0.45, 258, CX + d * (SW - 16), 232); c.stroke(); });
+        c.beginPath(); c.arc(CX, 184, nw, 0.1 * Math.PI, 0.9 * Math.PI); c.stroke();
+      }
+      if (fat > 0.45) {
+        c.strokeStyle = `rgba(0,0,0,${0.12 + 0.2 * (fat - 0.45)})`;
+        c.beginPath(); c.moveTo(CX - WW, 336); c.quadraticCurveTo(CX, 360 + 10 * fat, CX + WW, 336); c.stroke();
       }
     }
+
+    // Arms
+    const upper = 26 + 20 * mu + 10 * fat, fore = 20 + 12 * mu + 6 * fat;
+    [-1, 1].forEach(d => {
+      const sx = CX + d * (SW - 10), ex = CX + d * (SW + 6 + 8 * fat), hx = CX + d * (SW + 10 + 8 * fat);
+      const sleeve = fit === "shirtless" ? T.mid : shirt;
+      limb(c, ex, 296, hx, 380, fore, fit === "hoodie" ? shirt : T.mid);
+      limb(c, sx, shY + 12, ex, 296, upper, T.mid);
+      if (fit !== "shirtless") limb(c, sx, shY + 12, CX + d * (SW - 2 + 4 * fat), 250, upper + 6, sleeve);
+      // Delts & biceps
+      c.fillStyle = sleeve;
+      c.beginPath(); c.ellipse(sx + d * 4, shY + 14, upper * 0.62, upper * 0.5, 0, 0, Math.PI * 2); c.fill();
+      if (mu > 0.35) {
+        c.fillStyle = fit === "shirtless" ? T.top : sleeve;
+        c.beginPath(); c.ellipse(CX + d * (SW + 1), 262, upper * 0.35 * mu + 3, 16 + 10 * mu, d * 0.1, 0, Math.PI * 2); c.fill();
+      }
+      if (fit !== "hoodie") { c.fillStyle = T.mid; c.beginPath(); c.arc(hx, 388, fore * 0.55, 0, Math.PI * 2); c.fill(); }
+      else { c.fillStyle = T.mid; c.beginPath(); c.arc(hx, 392, fore * 0.5, 0, Math.PI * 2); c.fill(); }
+    });
+
+    // Head (scaled down onto the body)
+    c.save(); c.translate(CX - 180 * 0.42, 2); c.scale(0.42, 0.42); drawHead(c, L, false); c.restore();
+
+    // Sickly tint when health is low
+    if (s.health < 50) {
+      c.save(); c.globalCompositeOperation = "source-atop";
+      c.fillStyle = `rgba(120,140,100,${(50 - s.health) / 180})`; c.fillRect(0, 0, W, H);
+      c.restore();
+    }
+  }
+
+  function drawAll(L) {
+    drawBody(gb, L);
+    drawHead(gf, L, true);
   }
 
   document.getElementById("endWeek").onclick = endWeek;

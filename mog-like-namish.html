@@ -1,0 +1,662 @@
+<title>How to Mog Like Namish</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  /* Single deliberate look: clinical bathroom tile + serum-amber accent. */
+  :root {
+    color-scheme: light;
+    --tile: #E9F0EE;
+    --tile-line: #D5E0DD;
+    --panel: #FBFDFC;
+    --ink: #12302C;
+    --ink-soft: #4D6A65;
+    --glass: #9CC7C0;
+    --amber: #E39B2F;
+    --amber-deep: #B8741A;
+    --bad: #C8453B;
+    --good: #2F8F6B;
+    --display: "Syne", "Arial Black", system-ui, sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  body {
+    font-family: var(--body);
+    font-size: 15px;
+    color: var(--ink);
+    background-color: var(--tile);
+    background-image:
+      linear-gradient(var(--tile-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--tile-line) 1px, transparent 1px);
+    background-size: 44px 44px;
+    padding-inline: 16px;
+    padding-block: 20px 40px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(34px, 6.4vw, 64px);
+    line-height: .92;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--amber-deep); }
+  .tagline { margin: 8px 0 0; color: var(--ink-soft); max-width: 52ch; }
+  .clock {
+    font-family: var(--mono);
+    background: var(--ink);
+    color: var(--panel);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .clock b { color: var(--amber); font-weight: 500; }
+
+  .game { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .game { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--panel); border: 1px solid var(--tile-line); border-radius: 10px; padding: 16px; }
+  .mirror-col { display: grid; gap: 14px; }
+  .mirror {
+    position: relative;
+    border-radius: 50% 50% 14px 14px / 42% 42% 14px 14px;
+    background: linear-gradient(160deg, #DDEDEA, #B9D7D1);
+    border: 6px solid var(--ink);
+    overflow: hidden;
+    aspect-ratio: 360 / 420;
+    max-width: 100%;
+  }
+  .mirror canvas { width: 100%; height: 100%; display: block; }
+  .mirror .tier {
+    position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--ink); color: var(--panel); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  }
+
+  .stats { display: grid; gap: 9px; }
+  .stat { display: grid; grid-template-columns: 92px 1fr 34px; align-items: center; gap: 10px; font-size: 13px; }
+  .stat .lbl { font-weight: 600; }
+  .stat .lbl small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 11px; }
+  .bar { height: 10px; background: var(--tile); border-radius: 999px; overflow: hidden; border: 1px solid var(--tile-line); }
+  .bar i { display: block; height: 100%; border-radius: 999px; transition: width .5s ease, background-color .5s ease; }
+  .stat .num { font-family: var(--mono); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+  .goal { font-size: 12px; color: var(--ink-soft); margin: 4px 0 0; }
+
+  .section-title { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0 0 4px; }
+  .hint { margin: 0 0 12px; color: var(--ink-soft); font-size: 13px; }
+
+  .routine { display: grid; gap: 12px; }
+  .slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .slot {
+    min-height: 54px; border: 2px dashed var(--glass); border-radius: 8px;
+    display: grid; place-items: center; text-align: center; padding: 6px;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .slot.filled { border-style: solid; border-color: var(--ink); color: var(--ink); background: #F3F8F7; font-weight: 600; cursor: pointer; }
+  .slot.filled:hover { border-color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn {
+    font-family: var(--body); font-weight: 600; font-size: 15px;
+    border: 0; border-radius: 8px; padding: 12px 18px; cursor: pointer;
+    background: var(--amber); color: var(--ink);
+    box-shadow: 0 3px 0 var(--amber-deep);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--amber-deep); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.ghost { background: transparent; box-shadow: none; border: 1px solid var(--tile-line); color: var(--ink-soft); }
+  .btn:focus-visible, .card:focus-visible, .slot:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+  .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
+  .card {
+    position: relative; text-align: left; cursor: pointer;
+    font-family: var(--body); color: var(--ink);
+    background: var(--panel); border: 1px solid var(--tile-line); border-radius: 8px;
+    padding: 10px 12px 12px; display: grid; gap: 4px; align-content: start;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .card:hover { border-color: var(--ink); transform: translateY(-1px); }
+  .card.picked { border-color: var(--amber-deep); background: #FFF6E8; box-shadow: inset 0 0 0 1px var(--amber-deep); }
+  .card .dose { font-family: var(--mono); font-size: 11px; color: var(--amber-deep); }
+  .card .name { font-weight: 600; font-size: 14px; line-height: 1.2; }
+  .card .blurb { font-size: 12px; color: var(--ink-soft); line-height: 1.35; }
+  .card .bottle { width: 22px; height: 30px; border-radius: 4px 4px 6px 6px; margin-bottom: 4px; border: 2px solid var(--ink); position: relative; }
+  .card .bottle::before { content: ""; position: absolute; left: 5px; right: 5px; top: -7px; height: 6px; background: var(--ink); border-radius: 2px 2px 0 0; }
+  .card .stamp {
+    position: absolute; top: 10px; right: 8px; transform: rotate(8deg);
+    font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em;
+    color: var(--bad); border: 2px solid var(--bad); padding: 1px 6px; border-radius: 4px; background: var(--panel);
+  }
+  .card .stamp.legit { color: var(--good); border-color: var(--good); }
+
+  .log { display: grid; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 4px; }
+  .entry { font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 6px; background: #F3F8F7; }
+  .entry b { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--ink-soft); display: block; margin-bottom: 2px; }
+  .entry.bad { background: #FBE9E6; }
+  .entry.good { background: #E7F4EE; }
+  .entry p { margin: 2px 0; }
+
+  .overlay {
+    position: fixed; inset: 0; background: rgba(18, 48, 44, .72);
+    display: grid; place-items: center; padding: 16px; z-index: 10;
+  }
+  .modal {
+    background: var(--panel); border-radius: 12px; max-width: 560px; width: 100%;
+    padding: 26px 24px; display: grid; gap: 14px; max-height: 90vh; overflow-y: auto;
+    border-top: 8px solid var(--amber);
+  }
+  .modal.lose { border-top-color: var(--bad); }
+  .modal h2 { font-family: var(--display); font-weight: 800; font-size: 32px; margin: 0; line-height: 1; text-wrap: balance; }
+  .modal p { margin: 0; line-height: 1.6; }
+  .modal .fine { font-size: 12px; color: var(--ink-soft); }
+  .flash { animation: flash .6s ease; }
+  @keyframes flash { 0%,100% { box-shadow: none; } 40% { box-shadow: 0 0 0 6px var(--bad); } }
+  @media (prefers-reduced-motion: reduce) { .flash { animation: none; } .bar i, .card { transition: none; } }
+  footer { font-size: 12px; color: var(--ink-soft); max-width: 70ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>How to Mog<br>Like <em>Namish</em></h1>
+      <p class="tagline">Your guy has a face full of breakouts and 20 weeks to become model-tier. Build a skincare routine and don't fall for the cope.</p>
+    </div>
+    <div class="clock" id="clock">WEEK <b>1</b> / 20</div>
+  </header>
+
+  <div class="game">
+    <div class="mirror-col">
+      <div class="mirror" id="mirror">
+        <canvas id="face" width="720" height="840" aria-label="Your character's face in the mirror"></canvas>
+        <div class="tier" id="tier">Tier: Hood-up</div>
+      </div>
+      <div class="panel stats" id="stats"></div>
+      <p class="goal">To win: acne ≤ 12 · scars ≤ 15 · barrier ≥ 60 · glow ≥ 70 · irritation ≤ 30</p>
+    </div>
+
+    <div style="display:grid; gap:20px; min-width:0;">
+      <div class="panel routine">
+        <div>
+          <h2 class="section-title">This week's routine</h2>
+          <p class="hint">Pick up to 3 products from the shelf, then end the week. Tap a filled slot to remove it.</p>
+        </div>
+        <div class="slots" id="slots"></div>
+        <div class="actions">
+          <button class="btn" id="endWeek" type="button">Apply &amp; end week</button>
+          <button class="btn ghost" id="restart" type="button">Restart</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="section-title">Bathroom shelf</h2>
+        <p class="hint">Some of these are real. Some are cope. You'll find out which the hard way.</p>
+        <div class="shelf" id="shelf"></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="section-title">Skin diary</h2>
+        <div class="log" id="log" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>This is a game, not medical advice. Tretinoin is a prescription drug in most places — talk to a dermatologist before starting it.</footer>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+(() => {
+  const MAX_WEEKS = 20;
+  const SLOTS = 3;
+
+  // ---------- Products ----------
+  // fx(s, ctx) mutates stats and returns a diary line.
+  const PRODUCTS = [
+    { id: "tret", name: "Tretinoin", dose: "0.025% cream · Rx", blurb: "Retinoid GOAT. Expect a purge first.", color: "#F4E7B8",
+      fx(s, c) {
+        s.tretUses++;
+        if (s.barrier < 30) { s.irritation += 20; return "Tretinoin on a wrecked barrier: burning, peeling, zero benefit. Fix your barrier first."; }
+        const k = c.has("bp") ? 0.5 : 1;
+        s.acne -= 10 * k; s.scars -= 6 * k; s.glow += 4 * k;
+        s.barrier -= c.has("moist") ? 5 : 10;
+        s.irritation += c.has("moist") ? 8 : 16;
+        let msg = "Tretinoin sped up cell turnover.";
+        if (s.tretUses <= 2) { s.acne += 7; msg += " The purge hit — it gets worse before it gets better."; }
+        if (k < 1) msg += " Benzoyl peroxide oxidized half of it — don't stack them.";
+        if (c.has("moist")) msg += " Buffering with moisturizer kept irritation down.";
+        return msg;
+      } },
+    { id: "lemon", cope: true, name: "Fresh Lemon Toner", dose: "100% natural", blurb: "Nature's brightener. Straight from the fruit.", color: "#FFF08A",
+      fx(s) { s.scars += 10; s.barrier -= 15; s.irritation += 15; return "Lemon juice is pH 2 and phototoxic. You got burns and darker marks. COPE."; } },
+    { id: "bp", name: "Benzoyl Peroxide", dose: "2.5% wash", blurb: "Kills acne bacteria on contact.", color: "#E3F1F7",
+      fx(s) { s.acne -= 12; s.oil -= 5; s.barrier -= 6; s.irritation += 6; return "Benzoyl peroxide wiped out a wave of breakouts. (It also bleaches pillowcases.)"; } },
+    { id: "niac", name: "Niacinamide", dose: "10% serum", blurb: "Oil control + barrier support.", color: "#E7E1F5",
+      fx(s) { s.oil -= 8; s.barrier += 6; s.acne -= 4; s.scars -= 2; return "Niacinamide calmed the oil slick and strengthened the barrier."; } },
+    { id: "paste", cope: true, name: "Minty Spot Fix", dose: "whitening formula", blurb: "Dab on overnight. Tingles = working!", color: "#D8F3F7",
+      fx(s) { s.acne += 8; s.barrier -= 12; s.irritation += 15; return "That was toothpaste. The tingle was chemical irritation. Breakouts got angrier. COPE."; } },
+    { id: "bha", name: "Salicylic Acid", dose: "2% BHA", blurb: "Oil-soluble. Unclogs pores.", color: "#F7E3E0",
+      fx(s) { s.acne -= 7; s.oil -= 10; s.scars -= 3; s.barrier -= 4; s.irritation += 5; return "BHA dug into pores and cleared out blackheads."; } },
+    { id: "cu", name: "Copper Peptides", dose: "GHK-Cu 1%", blurb: "Repair, remodel, collagen.", color: "#BFE1F2",
+      fx(s) { s.scars -= 8; s.barrier += 8; s.glow += 6; s.irritation -= 5; return "Copper peptides kicked off repair — texture smoothed out."; } },
+    { id: "scrub", cope: true, name: "Walnut Glow Scrub", dose: "exfoliating grit", blurb: "Buff breakouts away. Feel the scrub!", color: "#E8CFB3",
+      fx(s) { s.barrier -= 18; s.acne += 10; s.irritation += 15; return "Crushed walnut shells made micro-tears and spread bacteria around. COPE."; } },
+    { id: "moist", name: "Ceramide Moisturizer", dose: "ceramides 1·3·6-II", blurb: "Rebuilds the skin barrier.", color: "#FFFFFF",
+      fx(s) { s.barrier += 14; s.irritation -= 12; return "Ceramides patched up the barrier."; } },
+    { id: "coco", cope: true, name: "Virgin Coconut Oil", dose: "cold-pressed", blurb: "The only moisturizer you'll ever need.", color: "#FBF6EA",
+      fx(s) { s.acne += 12; s.oil += 10; return "Coconut oil is highly comedogenic. Every pore clogged. COPE."; } },
+    { id: "spf", name: "Sunscreen", dose: "SPF 50 · PA++++", blurb: "Non-negotiable with actives.", color: "#FFE9C9",
+      fx(s) { s.glow += 2; s.scars -= 1; return "SPF 50 locked in. Your actives can actually do their job."; } },
+    { id: "pop", cope: true, name: "Pop Every Pimple", dose: "bare hands", blurb: "Instant results. So satisfying.", color: "#F2D0D0",
+      fx(s) { s.acne += 6; s.scars += 14; s.irritation += 8; return "Popping pushed bacteria deeper and left scars behind. COPE."; } },
+    { id: "matrixyl", name: "Matrixyl Peptides", dose: "pal-pentapeptide-4", blurb: "Firmness and bounce.", color: "#E0EDD6",
+      fx(s) { s.glow += 5; s.scars -= 4; s.barrier += 4; return "Signal peptides boosted firmness and glow."; } },
+    { id: "mew", cope: true, name: "Jawline Mewing Cream", dose: "“clinically mogging”", blurb: "Snatched jaw in 7 days, guaranteed.", color: "#D9D2F0",
+      fx(s) { s.acne += 6; s.glow -= 5; s.oil += 6; return "Fragrance-heavy goo with zero actives. Your jaw didn't move; your pores clogged. COPE."; } },
+    { id: "aze", name: "Azelaic Acid", dose: "15% gel", blurb: "Fades red and brown marks.", color: "#F5E6F0",
+      fx(s) { s.acne -= 6; s.scars -= 5; s.barrier -= 2; s.irritation += 3; return "Azelaic acid faded post-acne marks and calmed redness."; } },
+    { id: "filter", cope: true, name: "Beauty Filter Pro", dose: "app · 4.9★", blurb: "Flawless skin instantly.*", color: "#E4F0FF",
+      fx(s) { s.acne += 5; s.glow -= 4; return "The filter looked great. You skipped your routine to take selfies. Real skin got worse. COPE."; } },
+    { id: "clean", name: "Gentle Cleanser", dose: "pH 5.5", blurb: "Low-foam, non-stripping.", color: "#EAF4F2",
+      fx(s) { s.oil -= 4; s.acne -= 3; s.barrier += 3; return "Gentle cleanser cleared the day's grime without stripping."; } },
+  ];
+  const byId = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
+
+  const STATS = [
+    { k: "acne", lbl: "Acne", sub: "lower is better", bad: true },
+    { k: "scars", lbl: "Scars & marks", sub: "lower is better", bad: true },
+    { k: "oil", lbl: "Oiliness", sub: "lower is better", bad: true },
+    { k: "irritation", lbl: "Irritation", sub: "lower is better", bad: true },
+    { k: "barrier", lbl: "Barrier", sub: "higher is better", bad: false },
+    { k: "glow", lbl: "Glow", sub: "higher is better", bad: false },
+  ];
+
+  let s, picked, tried, over;
+
+  function fresh() {
+    s = { week: 1, acne: 85, scars: 70, oil: 75, barrier: 50, irritation: 10, glow: 10, tretUses: 0 };
+    picked = [];
+    tried = new Set();
+    over = false;
+    document.getElementById("log").innerHTML = "";
+    addLog("Day 0", "Hood up, eyes down. Your guy's face is a full breakout. The mirror is not his friend. Time to lock in.", "");
+    document.getElementById("overlay").hidden = true;
+    render();
+  }
+
+  const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+
+  function progress() {
+    return Math.max(0, Math.min(1,
+      (100 - s.acne) / 100 * 0.35 + (100 - s.scars) / 100 * 0.25 + s.glow / 100 * 0.25 + s.barrier / 100 * 0.15));
+  }
+
+  function tierName(p) {
+    if (p < 0.3) return "Hood-up";
+    if (p < 0.45) return "Normie";
+    if (p < 0.6) return "Chadlite in training";
+    if (p < 0.75) return "Chadlite";
+    if (p < 0.88) return "Chad";
+    return "Model tier";
+  }
+
+  // ---------- Week resolution ----------
+  function endWeek() {
+    if (over) return;
+    const ids = picked.slice();
+    const ctx = { has: id => ids.includes(id) };
+    const lines = [];
+    let copeHit = false;
+    const usesActive = ids.some(id => ["tret", "bha", "aze"].includes(id));
+
+    ids.forEach(id => {
+      const p = byId[id];
+      tried.add(id);
+      lines.push(p.fx(s, ctx));
+      if (p.cope) copeHit = true;
+    });
+
+    if (!ids.length) lines.push("You did nothing this week. Skin doesn't fix itself.");
+
+    // Passive drift
+    s.acne += 2; s.oil += 2; s.glow -= 1;
+    if (usesActive && !ctx.has("spf")) { s.scars += 3; s.glow -= 2; lines.push("No sunscreen on actives — sun darkened your marks."); }
+    if (s.irritation > 60) { s.barrier -= 8; s.acne += 4; lines.push("Irritation is maxed out. Your skin is inflamed and breaking out."); }
+    if (s.barrier < 25) { s.acne += 5; lines.push("Barrier is shot. Bacteria walk right in."); }
+    if (s.oil > 65) { s.acne += 2; }
+    s.irritation -= 10;
+
+    ["acne", "scars", "oil", "barrier", "irritation", "glow"].forEach(k => s[k] = clamp(s[k]));
+
+    const label = "Week " + s.week;
+    s.week += 1;
+    if (copeHit) {
+      s.week += 1;
+      lines.push("You lost an extra week recovering from the cope.");
+      const m = document.getElementById("mirror");
+      m.classList.remove("flash"); void m.offsetWidth; m.classList.add("flash");
+    }
+    addLog(label, lines, copeHit ? "bad" : (ids.length ? "good" : ""));
+    picked = [];
+
+    if (s.acne <= 12 && s.scars <= 15 && s.barrier >= 60 && s.glow >= 70 && s.irritation <= 30) {
+      over = true; render(); showWin();
+    } else if (s.week > MAX_WEEKS) {
+      over = true; render(); showLose();
+    } else {
+      render();
+    }
+  }
+
+  // ---------- UI ----------
+  function addLog(label, lines, cls) {
+    const log = document.getElementById("log");
+    const div = document.createElement("div");
+    div.className = "entry " + cls;
+    const b = document.createElement("b"); b.textContent = label; div.appendChild(b);
+    [].concat(lines).forEach(t => { const p = document.createElement("p"); p.textContent = t; div.appendChild(p); });
+    log.prepend(div);
+  }
+
+  function render() {
+    document.getElementById("clock").innerHTML = "WEEK <b>" + Math.min(s.week, MAX_WEEKS) + "</b> / " + MAX_WEEKS;
+
+    const stats = document.getElementById("stats");
+    stats.innerHTML = STATS.map(st => {
+      const v = s[st.k];
+      const good = st.bad ? 100 - v : v;
+      const col = good >= 65 ? "var(--good)" : good >= 35 ? "var(--amber)" : "var(--bad)";
+      return `<div class="stat"><span class="lbl">${st.lbl}<small>${st.sub}</small></span>
+        <span class="bar"><i style="width:${v}%;background:${col}"></i></span><span class="num">${v}</span></div>`;
+    }).join("");
+
+    const slots = document.getElementById("slots");
+    slots.innerHTML = "";
+    for (let i = 0; i < SLOTS; i++) {
+      const id = picked[i];
+      const el = document.createElement(id ? "button" : "div");
+      el.className = "slot" + (id ? " filled" : "");
+      el.textContent = id ? byId[id].name : "Empty slot";
+      if (id) { el.type = "button"; el.title = "Remove"; el.onclick = () => toggle(id); }
+      slots.appendChild(el);
+    }
+    document.getElementById("endWeek").disabled = over;
+
+    const shelf = document.getElementById("shelf");
+    shelf.innerHTML = "";
+    PRODUCTS.forEach(p => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.id = "prod-" + p.id;
+      b.className = "card" + (picked.includes(p.id) ? " picked" : "");
+      b.setAttribute("aria-pressed", picked.includes(p.id));
+      b.innerHTML = `<span class="bottle" style="background:${p.color}"></span>
+        <span class="dose">${p.dose}</span><span class="name">${p.name}</span><span class="blurb">${p.blurb}</span>` +
+        (tried.has(p.id) ? `<span class="stamp${p.cope ? "" : " legit"}">${p.cope ? "COPE" : "LEGIT"}</span>` : "");
+      b.onclick = () => toggle(p.id);
+      shelf.appendChild(b);
+    });
+
+    document.getElementById("tier").textContent = "Tier: " + tierName(progress());
+    drawFace();
+  }
+
+  function toggle(id) {
+    if (over) return;
+    if (picked.includes(id)) picked = picked.filter(x => x !== id);
+    else if (picked.length < SLOTS) picked.push(id);
+    render();
+  }
+
+  function showWin() {
+    const m = document.getElementById("modal");
+    m.className = "modal";
+    m.innerHTML = `
+      <h2>You mogged. It's over (for everyone else).</h2>
+      <p>You won. ${s.week - 1} weeks ago your guy was hiding under a hoodie, skipping photos and picking at a face full of breakouts.
+      Now look at him: skin clear as glass, marks faded, barrier rock-solid, and a glow that catches every light in the room.
+      Tretinoin did the heavy lifting, peptides rebuilt what the acne broke, and sunscreen protected every bit of progress — while you
+      walked straight past the lemon juice, the toothpaste, and the mewing cream. Scouts are already comparing him to Chico Lachowski
+      and Jordan Barrett, and his camera roll finally has more than zero selfies. Consistency beat cope. You now officially know
+      how to mog like Namish.</p>
+      <p class="fine">Final stats — acne ${s.acne} · scars ${s.scars} · barrier ${s.barrier} · glow ${s.glow} · irritation ${s.irritation}</p>
+      <div class="actions"><button class="btn" type="button" id="again">Play again</button></div>`;
+    document.getElementById("overlay").hidden = false;
+    document.getElementById("again").onclick = fresh;
+    document.getElementById("again").focus();
+  }
+
+  function showLose() {
+    const m = document.getElementById("modal");
+    m.className = "modal lose";
+    const tip = s.barrier < 60 ? "Your barrier never recovered — moisturizer is not optional."
+      : s.glow < 70 ? "You never built up glow — peptides and sunscreen are how you get it."
+      : s.scars > 15 ? "Your marks never faded — tretinoin, azelaic acid, and copper peptides handle texture."
+      : "Your acne never fully cleared — tretinoin and benzoyl peroxide (on different weeks) are the backbone.";
+    m.innerHTML = `
+      <h2>Out of time. Still coping.</h2>
+      <p>Twenty weeks are up and your guy is ${tierName(progress()).toLowerCase()} — not model tier. ${tip}
+      Every cope product also cost you an extra week. Run it back.</p>
+      <p class="fine">Final stats — acne ${s.acne} · scars ${s.scars} · barrier ${s.barrier} · glow ${s.glow} · irritation ${s.irritation}</p>
+      <div class="actions"><button class="btn" type="button" id="again">Try again</button></div>`;
+    document.getElementById("overlay").hidden = false;
+    document.getElementById("again").onclick = fresh;
+    document.getElementById("again").focus();
+  }
+
+  // ---------- Face rendering ----------
+  const cv = document.getElementById("face");
+  const g = cv.getContext("2d");
+  const W = 360, H = 420, CX = 180;
+  g.scale(2, 2);
+
+  // Deterministic spot positions so pimples disappear one by one instead of reshuffling.
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const zones = [
+    [CX, 150, 60, 22], [CX - 55, 245, 28, 38], [CX + 55, 245, 28, 38],
+    [CX, 320, 30, 14], [CX - 35, 300, 22, 16], [CX + 35, 300, 22, 16], [CX, 225, 10, 30],
+  ];
+  function spots(n) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const z = zones[Math.floor(rnd() * zones.length)];
+      const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd());
+      out.push({ x: z[0] + Math.cos(a) * z[2] * r, y: z[1] + Math.sin(a) * z[3] * r, s: 0.7 + rnd() * 0.8 });
+    }
+    return out;
+  }
+  const ACNE = spots(55), SCARS = spots(40), FLAKES = spots(30);
+
+  function facePath(m) {
+    const jw = 82 + 8 * m, jy = 300 - 12 * m, cw = 36 - 10 * m, chinY = 350 + 4 * m;
+    const soft = 1 - m;
+    g.beginPath();
+    g.moveTo(CX - 92, 190);
+    g.bezierCurveTo(CX - 98, 95, CX + 98, 95, CX + 92, 190);
+    g.bezierCurveTo(CX + 94, 240, CX + jw + 4 * soft, jy - 30, CX + jw, jy);
+    g.quadraticCurveTo(CX + jw - 20 * soft - 6, jy + 30 + 10 * soft, CX + cw, chinY - 6);
+    g.quadraticCurveTo(CX, chinY + 6 * soft, CX - cw, chinY - 6);
+    g.quadraticCurveTo(CX - jw + 20 * soft + 6, jy + 30 + 10 * soft, CX - jw, jy);
+    g.bezierCurveTo(CX - jw - 4 * soft, jy - 30, CX - 94, 240, CX - 92, 190);
+    g.closePath();
+  }
+
+  function drawFace() {
+    const m = progress();
+    const ease = m * m * (3 - 2 * m);
+    g.clearRect(0, 0, W, H);
+
+    // Background glow once he starts mogging
+    if (ease > 0.5) {
+      const bg = g.createRadialGradient(CX, 200, 40, CX, 200, 240);
+      bg.addColorStop(0, `rgba(255,236,200,${(ease - 0.5) * 1.2})`);
+      bg.addColorStop(1, "rgba(255,236,200,0)");
+      g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    }
+
+    // Shoulders: hoodie -> black turtleneck
+    const shirt = ease > 0.7 ? "#16191C" : "#6C7A86";
+    g.fillStyle = shirt;
+    g.beginPath(); g.moveTo(20, H); g.bezierCurveTo(30, 380, 110, 370, 140, 360);
+    g.lineTo(220, 360); g.bezierCurveTo(250, 370, 330, 380, 340, H); g.closePath(); g.fill();
+    // Neck
+    g.fillStyle = "#D9A57F";
+    g.fillRect(CX - 30, 320, 60, 60);
+    if (ease > 0.7) { g.fillStyle = shirt; g.beginPath(); g.ellipse(CX, 372, 44, 16, 0, 0, Math.PI * 2); g.fill(); }
+
+    // Hood behind head when early
+    if (ease < 0.3) {
+      g.fillStyle = "#56636E";
+      g.beginPath(); g.ellipse(CX, 200, 128, 160, 0, Math.PI * 0.95, Math.PI * 2.05); g.fill();
+    }
+
+    // Face base
+    facePath(ease);
+    const skin = g.createLinearGradient(0, 100, 0, 360);
+    skin.addColorStop(0, "#EBC19E"); skin.addColorStop(1, "#DDAA84");
+    g.fillStyle = skin; g.fill();
+
+    g.save();
+    facePath(ease); g.clip();
+
+    // Contour under cheekbones / jaw as he gets sharper
+    if (ease > 0.2) {
+      g.fillStyle = `rgba(150,95,60,${0.22 * ease})`;
+      [-1, 1].forEach(d => { g.beginPath(); g.ellipse(CX + d * 72, 285, 14, 40, d * -0.4, 0, Math.PI * 2); g.fill(); });
+    }
+    // Irritation flush
+    if (s.irritation > 10) {
+      g.fillStyle = `rgba(220,70,60,${s.irritation / 260})`;
+      [-1, 1].forEach(d => { g.beginPath(); g.ellipse(CX + d * 55, 250, 42, 34, 0, 0, Math.PI * 2); g.fill(); });
+    }
+    // Oil shine on T-zone
+    if (s.oil > 20) {
+      g.fillStyle = `rgba(255,255,235,${s.oil / 230})`;
+      g.beginPath(); g.ellipse(CX, 145, 42, 10, 0, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.ellipse(CX + 3, 240, 5, 24, 0, 0, Math.PI * 2); g.fill();
+    }
+    // Scars / marks
+    SCARS.slice(0, Math.round(s.scars * 0.4)).forEach(p => {
+      g.fillStyle = "rgba(140,80,55,.45)";
+      g.beginPath(); g.arc(p.x, p.y, 3.2 * p.s, 0, Math.PI * 2); g.fill();
+    });
+    // Flakes from a wrecked barrier
+    if (s.barrier < 40) {
+      FLAKES.slice(0, Math.round((40 - s.barrier) * 0.7)).forEach(p => {
+        g.strokeStyle = "rgba(255,245,235,.85)"; g.lineWidth = 1.2;
+        g.beginPath(); g.moveTo(p.x - 4, p.y); g.lineTo(p.x + 3, p.y - 2); g.stroke();
+      });
+    }
+    // Acne
+    ACNE.slice(0, Math.round(s.acne * 0.55)).forEach(p => {
+      const r = 4.5 * p.s;
+      const grd = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 1.8);
+      grd.addColorStop(0, "rgba(200,50,45,.9)"); grd.addColorStop(1, "rgba(200,50,45,0)");
+      g.fillStyle = grd; g.beginPath(); g.arc(p.x, p.y, r * 1.8, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#F4E3C8"; g.beginPath(); g.arc(p.x - r * .2, p.y - r * .2, r * .38, 0, Math.PI * 2); g.fill();
+    });
+    // Glow highlights
+    if (s.glow > 15) {
+      const a = s.glow / 170;
+      [-1, 1].forEach(d => {
+        const hg = g.createRadialGradient(CX + d * 50, 225, 0, CX + d * 50, 225, 34);
+        hg.addColorStop(0, `rgba(255,250,240,${a})`); hg.addColorStop(1, "rgba(255,250,240,0)");
+        g.fillStyle = hg; g.beginPath(); g.arc(CX + d * 50, 225, 34, 0, Math.PI * 2); g.fill();
+      });
+      g.fillStyle = `rgba(255,250,240,${a})`;
+      g.beginPath(); g.ellipse(CX + 2, 250, 3, 14, 0, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
+
+    // Ears
+    g.fillStyle = "#D9A57F";
+    [-1, 1].forEach(d => { g.beginPath(); g.ellipse(CX + d * 96, 225, 11, 22, 0, 0, Math.PI * 2); g.fill(); });
+
+    // Eyes: tilt gets "hunter" as he progresses
+    const tilt = 0.12 * ease;
+    [-1, 1].forEach(d => {
+      const ex = CX + d * 36, ey = 205;
+      g.save(); g.translate(ex, ey); g.rotate(-d * tilt);
+      g.fillStyle = "#FFFFFF"; g.beginPath(); g.ellipse(0, 0, 17, 9 - 2 * ease, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = ease > 0.6 ? "#5E8FA8" : "#5A3E2B"; g.beginPath(); g.arc(0, 0, 6.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#111"; g.beginPath(); g.arc(0, 0, 3, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(2, -2, 1.4, 0, Math.PI * 2); g.fill();
+      // upper lid
+      g.strokeStyle = "#3A2A20"; g.lineWidth = 2.2;
+      g.beginPath(); g.ellipse(0, 0, 17, 9 - 2 * ease, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+      // Eye bags early on
+      if (ease < 0.4) { g.strokeStyle = "rgba(120,80,70,.4)"; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 6, 13, 0.2, Math.PI - 0.2); g.stroke(); }
+      g.restore();
+      // Brows
+      g.strokeStyle = "#2E221B"; g.lineWidth = 4 + 1.5 * ease; g.lineCap = "round";
+      g.beginPath();
+      g.moveTo(CX + d * 18, 188 - 4 * ease + (1 - ease) * -2);
+      g.quadraticCurveTo(CX + d * 36, 180 - 2 * ease, CX + d * 54, 186 - 6 * ease + (1 - ease) * 4);
+      g.stroke();
+    });
+
+    // Nose
+    g.strokeStyle = "rgba(120,70,45,.6)"; g.lineWidth = 2; g.lineCap = "round";
+    g.beginPath(); g.moveTo(CX - 4, 212); g.quadraticCurveTo(CX - 8, 250, CX - 12, 262);
+    g.quadraticCurveTo(CX, 270, CX + 12, 262); g.stroke();
+
+    // Mouth: frown -> slight smirk
+    g.strokeStyle = "#8E4B3E"; g.lineWidth = 3;
+    const curve = -6 + 12 * ease;
+    g.beginPath(); g.moveTo(CX - 24, 296); g.quadraticCurveTo(CX, 296 + curve, CX + 24, 296 - 3 * ease); g.stroke();
+    if (ease > 0.5) { g.fillStyle = `rgba(160,90,75,${ease * 0.35})`; g.beginPath(); g.ellipse(CX, 304, 14, 3, 0, 0, Math.PI * 2); g.fill(); }
+    // Stubble shadow when mogging
+    if (ease > 0.6) {
+      g.save(); facePath(ease); g.clip();
+      g.fillStyle = `rgba(60,45,35,${(ease - 0.6) * 0.35})`;
+      g.beginPath(); g.ellipse(CX, 330, 70, 40, 0, 0, Math.PI * 2); g.fill();
+      g.restore();
+    }
+
+    // Hair: greasy curtain -> swept-back model hair
+    g.fillStyle = "#2A1E17";
+    if (ease < 0.5) {
+      g.beginPath();
+      g.moveTo(CX - 98, 185);
+      g.bezierCurveTo(CX - 110, 70, CX + 110, 70, CX + 98, 185);
+      for (let i = 0; i <= 8; i++) {
+        const x = CX + 98 - i * 24.5;
+        const y = 150 + (i % 2 ? 22 : 8) + (0.5 - ease) * 20;
+        g.lineTo(x, y);
+      }
+      g.closePath(); g.fill();
+    } else {
+      const lift = (ease - 0.5) * 2;
+      g.beginPath();
+      g.moveTo(CX - 96, 190);
+      g.bezierCurveTo(CX - 118, 60 - 10 * lift, CX + 60, 40 - 16 * lift, CX + 100, 110);
+      g.bezierCurveTo(CX + 108, 140, CX + 100, 170, CX + 96, 190);
+      g.quadraticCurveTo(CX + 88, 140, CX + 50, 128);
+      g.quadraticCurveTo(CX - 10, 112 - 6 * lift, CX - 60, 134);
+      g.quadraticCurveTo(CX - 88, 150, CX - 96, 190);
+      g.closePath(); g.fill();
+      g.strokeStyle = "rgba(255,255,255,.12)"; g.lineWidth = 2;
+      for (let i = 0; i < 4; i++) {
+        g.beginPath(); g.moveTo(CX - 60 + i * 30, 128 - i * 2); g.quadraticCurveTo(CX + i * 20, 70, CX + 70 + i * 6, 100 + i * 6); g.stroke();
+      }
+    }
+  }
+
+  document.getElementById("endWeek").onclick = endWeek;
+  document.getElementById("restart").onclick = fresh;
+  fresh();
+})();
+</script>

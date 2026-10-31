@@ -4,10 +4,13 @@
   "description": "Car mod planner: pick a car, set a budget and build style, get a staged mod plan.",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "build:static": "node scripts/build-static.js"
   }
 }

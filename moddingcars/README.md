@@ -17,6 +17,21 @@ npm test           # engine + API tests
 
 Environment variables: `PORT` (default 3000), `DATA_FILE` (default `data/builds.json`).
 
+## Static version (no server)
+
+```bash
+npm run build:static   # writes dist/index.html
+```
+
+`dist/index.html` is the whole app in one file: the planner runs in the browser and a saved build
+is packed into the share link (`#build-…`), so it works on any static host with no database.
+Upload `dist/` to GitHub Pages, Netlify or Cloudflare Pages, or open the file directly.
+
+`.github/workflows/moddingcars-pages.yml` deploys it to GitHub Pages on every push to `main`
+once the repo's Settings → Pages → Source is set to "GitHub Actions".
+`dist/artifact.html` is the same app packaged for a claude.ai artifact
+(`--share-base=<artifact url>` sets the link that "Save & share" produces).
+
 ## How it's organized
 
 ```
@@ -30,7 +45,10 @@ src/engine/links.js       research links per mod (buy-links provider later)
 src/server/app.js         HTTP API + static files
 src/server/storage.js     build storage (JSON file now; swap for a database)
 src/server/auth.js        current-user + entitlement hooks (accounts/payments later)
-public/                   front end (plain HTML/CSS/JS, mobile-first)
+src/engine/catalog.js     catalog sent to the browser (shared by both versions)
+public/                   front end (plain HTML/CSS/JS, mobile-first); public/api.js talks to the server
+static/api.js             browser-only data layer used by the static build
+scripts/build-static.js   bundles everything into dist/index.html
 ```
 
 ### API

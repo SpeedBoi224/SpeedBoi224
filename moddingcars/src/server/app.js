@@ -1,8 +1,7 @@
 import http from 'node:http';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { CARS } from '../data/cars.js';
-import { GOALS, EXPERIENCE, LABOR, DEFAULT_LABOR_RATE } from '../data/goals.js';
+import { buildCatalog, defaultBuildTitle } from '../engine/catalog.js';
 import { createPlan } from '../engine/providers.js';
 import { PlanInputError } from '../engine/planner.js';
 import { currentUser, can } from './auth.js';
@@ -21,21 +20,7 @@ const MAX_BODY = 64 * 1024;
 const BUILD_ID = /^[A-Za-z0-9]{6,16}$/;
 
 export function createApp({ store, publicDir }) {
-  const catalog = {
-    cars: CARS.map(({ id, make, model, generations, directions }) => ({
-      id,
-      make,
-      model,
-      directions,
-      generations: generations.map(({ id, name, years, engine, aspiration, drivetrain, transmissions }) => ({
-        id, name, years, engine, aspiration, drivetrain, transmissions,
-      })),
-    })),
-    goals: GOALS,
-    experience: EXPERIENCE,
-    labor: LABOR,
-    defaultLaborRate: DEFAULT_LABOR_RATE,
-  };
+  const catalog = buildCatalog();
 
   async function handle(req, res) {
     const url = new URL(req.url, 'http://localhost');
@@ -54,7 +39,7 @@ export function createApp({ store, publicDir }) {
       const body = await readJson(req);
       // Never trust a client-sent plan: regenerate from the inputs.
       const plan = await createPlan(body.input || {}, { user });
-      const title = (typeof body.title === 'string' && body.title.trim().slice(0, 80)) || `${plan.car.make} ${plan.car.model} ${plan.goal.name} build`;
+      const title = (typeof body.title === 'string' && body.title.trim().slice(0, 80)) || defaultBuildTitle(plan);
       const build = await store.create({ title, plan, ownerId: user?.id ?? null });
       return json(res, 201, { id: build.id, url: `/b/${build.id}` });
     }

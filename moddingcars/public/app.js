@@ -1,6 +1,12 @@
 // moddingcars.com front end. No framework: state + render functions +
 // delegated events. Text inputs update state without re-rendering so typing
 // never loses focus; choices re-render the planner.
+//
+// All data access goes through ./api.js. The server build talks to the Node
+// API; the static build (scripts/build-static.js) swaps in static/api.js,
+// which runs the planner in the browser and packs saved builds into the link.
+
+import * as api from './api.js';
 
 const app = document.getElementById('app');
 const DRAFT_KEY = 'mc:draft:v1';
@@ -34,16 +40,6 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function storage(fn) {
   try { return fn(window.localStorage); } catch { return null; }
-}
-
-async function api(path, options = {}) {
-  const res = await fetch(path, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
-  return data;
 }
 
 const currentModel = () => state.catalog?.cars.find((c) => c.id === state.modelId) || null;
@@ -391,10 +387,10 @@ function renderShare() {
       <p class="muted">Get a link you can send to friends, post in a forum or open later on any device.</p>
       ${sh.url ? `
         <div class="share-box">
-          <input class="input" readonly value="${esc(location.origin + sh.url)}" aria-label="Share link" id="share-url">
+          <input class="input" readonly value="${esc(sh.url)}" aria-label="Share link" id="share-url">
           <button type="button" class="btn btn-primary" data-action="copy-share">Copy link</button>
-          ${navigator.share ? `<button type="button" class="btn btn-ghost" data-action="native-share">Share…</button>` : ''}
-          <a class="btn btn-ghost" href="${esc(sh.url)}">Open</a>
+          ${api.features.nativeShare ? `<button type="button" class="btn btn-ghost" data-action="native-share">Share…</button>` : ''}
+          <a class="btn btn-ghost" href="${esc(sh.url)}" target="_blank" rel="noopener">Open</a>
         </div>
         ${sh.copied ? `<p class="small" role="status" style="color:var(--ok);margin-top:8px">Link copied!</p>` : ''}
       ` : `
@@ -419,9 +415,9 @@ function renderSaved(build) {
       <p>Saved ${esc(new Date(build.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }))} · ${esc(p.car.label)}</p>
       <div class="row no-print">
         <button type="button" class="btn btn-primary" data-action="copy-link">Copy link</button>
-        ${navigator.share ? `<button type="button" class="btn btn-ghost" data-action="native-share">Share…</button>` : ''}
+        ${api.features.nativeShare ? `<button type="button" class="btn btn-ghost" data-action="native-share">Share…</button>` : ''}
         <button type="button" class="btn btn-ghost" data-action="edit-copy">Edit a copy</button>
-        <button type="button" class="btn btn-ghost" data-action="print">Print</button>
+        ${api.features.print ? `<button type="button" class="btn btn-ghost" data-action="print">Print</button>` : ''}
       </div>
       <p class="small" id="copy-status" role="status" style="color:var(--ok);min-height:1.4em;margin-top:8px"></p>
     </section>
@@ -446,7 +442,7 @@ async function makePlan() {
   state.error = '';
   renderPlanner();
   try {
-    state.plan = await api('/api/plan', { method: 'POST', body: JSON.stringify(buildInput()) });
+    state.plan = await api.createPlan(buildInput());
     state.share = null;
   } catch (err) {
     state.error = err.message;
@@ -460,8 +456,8 @@ async function saveBuild() {
   state.share = { ...(state.share || {}), saving: true, error: '' };
   rerenderShare();
   try {
-    const res = await api('/api/builds', { method: 'POST', body: JSON.stringify({ title: state.share.title || '', input: state.plan.input }) });
-    state.share = { url: res.url };
+    const res = await api.saveBuild({ title: state.share.title || '', input: state.plan.input });
+    state.share = { url: res.shareUrl };
   } catch (err) {
     state.share = { ...state.share, saving: false, error: err.message };
   }
@@ -542,15 +538,15 @@ app.addEventListener('click', async (e) => {
     case 'goto-share': document.getElementById('share')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
     case 'save': return saveBuild();
     case 'copy-share':
-      if (await copy(location.origin + state.share.url)) { state.share.copied = true; rerenderShare(); }
+      if (await copy(state.share.url)) { state.share.copied = true; rerenderShare(); }
       return;
     case 'native-share': {
-      const url = state.share?.url ? location.origin + state.share.url : location.href;
+      const url = state.share?.url || api.currentShareUrl();
       navigator.share?.({ title: document.title, url }).catch(() => {});
       return;
     }
     case 'copy-link': {
-      const ok = await copy(location.href);
+      const ok = await copy(api.currentShareUrl());
       const s = document.getElementById('copy-status');
       if (s) s.textContent = ok ? 'Link copied!' : 'Copy failed — copy the address bar instead.';
       else if (ok) btn.textContent = 'Copied!';
@@ -560,7 +556,7 @@ app.addEventListener('click', async (e) => {
       loadInputIntoState(window.__build.plan.input);
       state.plan = window.__build.plan;
       saveDraft();
-      history.pushState({}, '', '/');
+      api.goHome();
       renderPlanner();
       window.scrollTo(0, 0);
       return;
@@ -590,23 +586,25 @@ app.addEventListener('keydown', (e) => {
 
 // ---------- boot ----------
 async function route() {
-  const m = location.pathname.match(/^\/b\/([A-Za-z0-9]+)$/);
-  if (m) {
-    try {
-      const build = await api(`/api/builds/${m[1]}`);
-      window.__build = build;
-      renderSaved(build);
-    } catch (err) {
-      app.innerHTML = `<section class="hero"><h1>Build not found</h1><p>${esc(err.message)} The link may be wrong or the build was removed.</p><a class="btn btn-primary" href="/">Plan a new build</a></section>`;
-    }
+  let build;
+  try {
+    build = await api.loadBuild();
+  } catch (err) {
+    app.innerHTML = `<section class="hero"><h1>Build not found</h1><p>${esc(err.message)} The link may be wrong or incomplete.</p><a class="btn btn-primary" href="${esc(api.homeHref)}">Plan a new build</a></section>`;
     return;
   }
-  renderPlanner();
+  if (build) {
+    window.__build = build;
+    renderSaved(build);
+    window.scrollTo(0, 0);
+  } else {
+    renderPlanner();
+  }
 }
 
 async function boot() {
   try {
-    state.catalog = await api('/api/catalog');
+    state.catalog = await api.getCatalog();
   } catch (err) {
     app.innerHTML = `<p class="error">Could not load the planner. ${esc(err.message)}</p>`;
     return;
@@ -617,7 +615,7 @@ async function boot() {
     Object.assign(state, draft);
     if (!Array.isArray(state.existingMods) || !state.existingMods.length) state.existingMods = [{ name: '', link: '' }];
   }
-  window.addEventListener('popstate', route);
+  api.onRouteChange(route);
   route();
 }
 
